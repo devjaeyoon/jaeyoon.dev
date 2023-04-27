@@ -1,0 +1,12 @@
+{
+  "name": "jaeyoon.dev",
+  "version": "1.0.0",
+  "description": "프론트엔드 개발자 이재윤 기술 블로그",
+  "scripts": {},
+  "author": "devjaeyoon",
+  "dependencies": {
+    "gatsby": "^5.9.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  }
+}
