@@ -6,5 +6,14 @@ module.exports = {
     title: '이재윤 기술 블로그',
     siteUrl: 'https://www.yourdomain.tld',
   },
-  plugins: [],
+  plugins: [
+    {
+      resolve: '@chakra-ui/gatsby-plugin',
+      options: {
+        resetCSS: true,
+        isUsingColorMode: true,
+        isBaseProvider: false,
+      },
+    },
+  ],
 };
