@@ -5,6 +5,7 @@ import { Box, Spacer } from '@chakra-ui/react';
 import Logo from './Logo';
 import About from './About';
 import Posts from './Posts';
+import ThemeModeToggler from '../ThemeModeToggler/ThemeModeToggler';
 
 export default function Header() {
   return (
@@ -31,6 +32,7 @@ export default function Header() {
       <Spacer />
       <About />
       <Posts />
+      <ThemeModeToggler />
     </Box>
   );
 }
