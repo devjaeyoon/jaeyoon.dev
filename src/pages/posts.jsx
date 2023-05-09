@@ -1,12 +1,11 @@
 import React from 'react';
 
-import Header from '../components/Header/index';
+import Layout from '../components/Layout';
 
-export default function Posts() {
+export default function PostsPage() {
   return (
-    <>
-      <Header />
-      PostsPage
-    </>
+    <Layout>
+      <h1>PostsPage</h1>
+    </Layout>
   );
 }

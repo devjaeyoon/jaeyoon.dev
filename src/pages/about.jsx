@@ -1,12 +1,11 @@
 import React from 'react';
 
-import Header from '../components/Header/index';
+import Layout from '../components/Layout';
 
 export default function AboutPage() {
   return (
-    <>
-      <Header />
-      AboutPage
-    </>
+    <Layout>
+      <h1>AboutPage</h1>
+    </Layout>
   );
 }
