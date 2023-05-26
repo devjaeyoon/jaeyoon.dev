@@ -15,5 +15,14 @@ module.exports = {
         isBaseProvider: false,
       },
     },
+    'gatsby-plugin-image',
+    'gatsby-plugin-sharp',
+    {
+      resolve: 'gatsby-source-filesystem',
+      options: {
+        name: 'posts',
+        path: `${__dirname}/posts`,
+      },
+    },
   ],
 };
