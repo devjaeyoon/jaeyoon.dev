@@ -9,6 +9,7 @@ export default function Logo() {
       <Text
         fontSize={24}
         fontWeight={700}
+        fontFamily="Pretendard"
         letterSpacing="-1px"
         _hover={{
           textDecoration: 'underline',

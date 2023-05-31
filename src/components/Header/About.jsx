@@ -8,6 +8,7 @@ export default function About() {
     <Link to="/about">
       <Text
         fontWeight={600}
+        fontFamily="Pretendard"
         letterSpacing="-0.5px"
         _hover={{
           textDecoration: 'underline',

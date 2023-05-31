@@ -8,6 +8,7 @@ export default function Posts() {
     <Link to="/posts">
       <Text
         fontWeight={600}
+        fontFamily="Pretendard"
         letterSpacing="-0.5px"
         _hover={{
           textDecoration: 'underline',
