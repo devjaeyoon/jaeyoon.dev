@@ -2,7 +2,13 @@
   "name": "jaeyoon.dev",
   "version": "1.0.0",
   "description": "프론트엔드 개발자 이재윤 기술 블로그",
-  "scripts": {},
+  "scripts": {
+    "develop": "gatsby develop",
+    "start": "gatsby develop",
+    "build": "gatsby build",
+    "serve": "gatsby serve",
+    "clean": "gatsby clean"
+  },
   "author": "devjaeyoon",
   "dependencies": {
     "@chakra-ui/gatsby-plugin": "^3.1.3",
