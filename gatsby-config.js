@@ -16,7 +16,21 @@ module.exports = {
       },
     },
     'gatsby-plugin-image',
+    {
+      resolve: 'gatsby-plugin-mdx',
+      options: {
+        gatsbyRemarkPlugins: [
+          {
+            resolve: 'gatsby-remark-images',
+            options: {
+              maxWidth: 900,
+            },
+          },
+        ],
+      },
+    },
     'gatsby-plugin-sharp',
+    'gatsby-transformer-sharp',
     {
       resolve: 'gatsby-source-filesystem',
       options: {
@@ -24,7 +38,6 @@ module.exports = {
         path: `${__dirname}/posts`,
       },
     },
-    'gatsby-plugin-mdx',
     {
       resolve: 'gatsby-plugin-web-font-loader',
       options: {
