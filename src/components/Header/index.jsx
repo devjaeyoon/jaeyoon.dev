@@ -16,6 +16,7 @@ export default function Header() {
       left="0"
       width="100%"
       height="60px"
+      zIndex="999"
       borderBottom="1px"
       borderBottomColor="gray.200"
       transition="box-shadow 0.3s ease"
