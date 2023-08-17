@@ -5,7 +5,7 @@ import { Box } from '@chakra-ui/react';
 import Logo from './Logo';
 import About from './About';
 import Posts from './Posts';
-import ThemeModeToggler from '../ThemeModeToggler/ThemeModeToggler';
+import ThemeModeToggler from './ThemeModeToggler/ThemeModeToggler';
 
 export default function Header() {
   return (
