@@ -8,13 +8,12 @@ export default function Logo() {
     <Link to="/">
       <Text
         fontSize={24}
-        fontWeight={700}
+        fontWeight={600}
         fontFamily="Pretendard"
         letterSpacing="-1px"
         _hover={{
           textDecoration: 'underline',
         }}
-        _active={{ bg: 'transparent' }}
       >
         Jaeyoon.dev
       </Text>

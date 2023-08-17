@@ -11,75 +11,43 @@ export default function Header() {
   return (
     <Box
       as="header"
-      position="sticky"
+      position="fixed"
       top="0"
-      left="0"
+      zIndex="2"
       width="100%"
-      height="60px"
-      zIndex="999"
-      borderBottom="1px"
-      borderBottomColor="gray.200"
-      transition="box-shadow 0.3s ease"
+      height={{ base: '45px', lg: '60px' }}
       backgroundColor="white"
       _dark={{
         backgroundColor: 'gray.800',
       }}
     >
       <Box
-        width="calc(100vw - 40px)"
-        maxWidth="900px"
+        display="flex"
+        width={{ base: 'calc(100% - 20px)', xl: '100%' }}
+        maxWidth="1024px"
         height="100%"
         margin="0 auto"
-        overflow="hidden"
-        display="flex"
+        justifyContent="space-between"
       >
-        <Box display="flex" alignItems="center" marginRight="24px">
+        <Box display="flex" alignItems="center">
           <Logo />
         </Box>
         <Box
+          as="ul"
           display="flex"
-          flex="1"
-          maxHeight="100%"
-          justifyContent="space-between"
+          listStyleType="none"
+          alignItems="center"
+          gap={{ base: 6, lg: 12 }}
+          padding={0}
         >
-          <ul />
-          <Box
-            as="ul"
-            display="flex"
-            alignItems="center"
-            padding="0"
-            margin="0"
-          >
-            <Box
-              as="li"
-              padding="0 8px"
-              height="100%"
-              listStyleType="none"
-              display="flex"
-              alignItems="center"
-            >
-              <About />
-            </Box>
-            <Box
-              as="li"
-              padding="0 8px"
-              height="100%"
-              listStyleType="none"
-              display="flex"
-              alignItems="center"
-            >
-              <Posts />
-            </Box>
-            <Box
-              as="li"
-              padding="0 8px"
-              height="100%"
-              listStyleType="none"
-              display="flex"
-              alignItems="center"
-            >
-              <ThemeModeToggler />
-            </Box>
+          <Box as="li">
+            <About />
+          </Box>
+          <Box as="li">
+            <Posts />
+          </Box>
+          <Box as="li">
+            <ThemeModeToggler />
           </Box>
         </Box>
       </Box>

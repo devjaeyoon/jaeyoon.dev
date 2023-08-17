@@ -7,14 +7,12 @@ export default function Posts() {
   return (
     <Link to="/posts">
       <Text
-        fontWeight={600}
+        fontWeight="500"
         fontFamily="Pretendard"
         letterSpacing="-0.5px"
         _hover={{
           textDecoration: 'underline',
         }}
-        padding={1}
-        _active={{ bg: 'transparent' }}
       >
         Posts
       </Text>
