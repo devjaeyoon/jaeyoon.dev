@@ -10,10 +10,10 @@ export default function Layout({ children }) {
     <>
       <Header />
       <Box
-        width="calc(100vw - 40px)"
-        maxWidth="900px"
-        margin="0 auto"
-        minHeight="50vh"
+        as="main"
+        width="100%"
+        maxWidth="1024px"
+        margin={{ base: '0', lg: '0 auto' }}
       >
         {children}
       </Box>
