@@ -1,11 +1,10 @@
 import React from 'react';
+import { Link } from 'gatsby';
 
-import { Box } from '@chakra-ui/react';
+import { Box, Text } from '@chakra-ui/react';
 
-import Logo from './Logo';
-import About from './About';
-import Posts from './Posts';
 import ThemeModeToggler from './ThemeModeToggler/ThemeModeToggler';
+import RightMenu from './RightMenu';
 
 export default function Header() {
   return (
@@ -30,7 +29,19 @@ export default function Header() {
         justifyContent="space-between"
       >
         <Box display="flex" alignItems="center">
-          <Logo />
+          <Link to="/">
+            <Text
+              fontSize={24}
+              fontWeight={600}
+              fontFamily="Pretendard"
+              letterSpacing="-1px"
+              _hover={{
+                textDecoration: 'underline',
+              }}
+            >
+              Jaeyoon.dev
+            </Text>
+          </Link>
         </Box>
         <Box
           as="ul"
@@ -40,12 +51,8 @@ export default function Header() {
           gap={{ base: 6, lg: 12 }}
           padding={0}
         >
-          <Box as="li">
-            <About />
-          </Box>
-          <Box as="li">
-            <Posts />
-          </Box>
+          <RightMenu name="about" />
+          <RightMenu name="posts" />
           <Box as="li">
             <ThemeModeToggler />
           </Box>
