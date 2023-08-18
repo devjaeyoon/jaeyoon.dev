@@ -1,43 +1,23 @@
-/**
- * @type {import('gatsby').GatsbyConfig}
- */
+const metaConfig = require('./gatsby-meta-config');
+
 module.exports = {
-  siteMetadata: {
-    title: '이재윤 기술 블로그',
-    siteUrl: 'https://www.yourdomain.tld',
-  },
+  siteMetadata: metaConfig,
   plugins: [
     {
       resolve: '@chakra-ui/gatsby-plugin',
       options: {
         resetCSS: true,
-        isUsingColorMode: true,
-        isBaseProvider: false,
       },
     },
-    'gatsby-plugin-image',
     {
       resolve: 'gatsby-plugin-mdx',
       options: {
+        extensions: ['.md', '.mdx'],
         gatsbyRemarkPlugins: [
           {
             resolve: 'gatsby-remark-images',
-            options: {
-              maxWidth: 800,
-              wrapperStyle: 'margin: 20px auto; z-index: 0',
-              showCaptions: true,
-            },
           },
         ],
-      },
-    },
-    'gatsby-plugin-sharp',
-    'gatsby-transformer-sharp',
-    {
-      resolve: 'gatsby-source-filesystem',
-      options: {
-        name: 'posts',
-        path: `${__dirname}/posts`,
       },
     },
     {
@@ -51,5 +31,22 @@ module.exports = {
         },
       },
     },
+    {
+      resolve: 'gatsby-source-filesystem',
+      options: {
+        path: `${__dirname}/content/about`,
+        name: 'about',
+      },
+    },
+    {
+      resolve: 'gatsby-source-filesystem',
+      options: {
+        path: `${__dirname}/content/posts`,
+        name: 'posts',
+      },
+    },
+    'gatsby-plugin-image',
+    'gatsby-plugin-sharp',
+    'gatsby-transformer-sharp',
   ],
 };
