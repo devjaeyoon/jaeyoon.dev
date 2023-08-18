@@ -11,7 +11,7 @@ exports.createPages = async ({ graphql, actions: { createPage } }) => {
           body
           frontmatter {
             slug
-            tags
+            category
           }
           internal {
             contentFilePath
@@ -29,7 +29,7 @@ exports.createPages = async ({ graphql, actions: { createPage } }) => {
       component: `${PostPageTemplate}?__contentFilePath=${node.internal.contentFilePath}`,
       context: {
         id: node.id,
-        tags: node.frontmatter.tags,
+        category: node.frontmatter.category,
         slug: node.frontmatter.slug,
       },
     });

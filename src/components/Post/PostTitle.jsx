@@ -6,7 +6,7 @@ export default function PostTitle({ post }) {
   return (
     <Box textAlign="center" padding={{ base: '36px 0', xl: '68px 0' }}>
       <Heading as="h3" fontSize="20px" lineHeight="32px" letterSpacing="-1px">
-        {post.frontmatter.tags}
+        {post.frontmatter.category}
       </Heading>
       <Heading
         as="h1"

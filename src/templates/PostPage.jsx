@@ -14,7 +14,7 @@ export const query = graphql`
         slug
         title
         description
-        tags
+        category
         createdAt
         updatedAt
       }
