@@ -46,6 +46,7 @@ module.exports = {
       },
     },
     'gatsby-plugin-image',
+    'gatsby-plugin-lodash',
     'gatsby-plugin-sharp',
     'gatsby-transformer-sharp',
   ],
