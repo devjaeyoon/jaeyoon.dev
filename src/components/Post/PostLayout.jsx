@@ -1,11 +1,13 @@
 import React from 'react';
 import { MDXProvider } from '@mdx-js/react';
 
-import { Heading, Text, Box, Flex, Center, Image } from '@chakra-ui/react';
+import {
+  Heading, Text, Box, Flex, Center,
+} from '@chakra-ui/react';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/cjs/styles/prism';
 
-import parseSyntaxHighlighterClassName from '../../utils';
+import parseSyntaxHighlighterClassName from '../../utils/code';
 import Header from '../Header';
 import Footer from '../Footer';
 
@@ -160,8 +162,7 @@ const customHTMLElements = {
       );
     }
 
-    const { addLines, removeLines } =
-      parseSyntaxHighlighterClassName(className);
+    const { addLines, removeLines } = parseSyntaxHighlighterClassName(className);
 
     return (
       <SyntaxHighlighter
