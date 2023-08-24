@@ -3,6 +3,6 @@ module.exports = {
   description: '이재윤 기술 블로그',
   author: 'devjaeyoon',
   configs: {
-    countOfInitialPost: 10,
+    countOfInitialPost: 6,
   },
 };
