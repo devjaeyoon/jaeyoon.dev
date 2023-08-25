@@ -11,6 +11,11 @@ export const query = graphql`
   query PostPage($id: String) {
     post: mdx(id: { eq: $id }) {
       frontmatter {
+        thumbnail {
+          childImageSharp {
+            gatsbyImageData
+          }
+        }
         slug
         title
         description

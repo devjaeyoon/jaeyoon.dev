@@ -1,4 +1,5 @@
 import React from 'react';
+import { GatsbyImage } from 'gatsby-plugin-image';
 
 import { Box, Heading } from '@chakra-ui/react';
 
@@ -26,6 +27,29 @@ export default function PostTitle({ post }) {
       >
         {post.frontmatter.createdAt}
       </Heading>
+      <Box width="768px" height="375px" margin="40px auto 0px">
+        <Box
+          position="relative"
+          borderRadius="15px"
+          overflow="hidden"
+          width="100%"
+          height="100%"
+          isolation="isolate"
+        >
+          <Box
+            display="inline-block"
+            width="100%"
+            height="100%"
+            borderRadius={2}
+          >
+            <GatsbyImage
+              objectFit="cover"
+              style={{ width: '100%', height: '100%' }}
+              image={post.frontmatter.thumbnail.childImageSharp.gatsbyImageData}
+            />
+          </Box>
+        </Box>
+      </Box>
     </Box>
   );
 }
