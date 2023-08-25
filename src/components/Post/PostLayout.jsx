@@ -203,10 +203,9 @@ export default function PostLayout({ children }) {
       <Header />
       <Box
         as="main"
-        width="calc(100vw - 40px)"
-        maxWidth="900px"
-        margin="0 auto"
-        minHeight="50vh"
+        width="100%"
+        maxWidth="1024px"
+        margin={{ base: '0', lg: '0 auto' }}
         wordBreak="keep-all"
       >
         <Box as="article">{children}</Box>
