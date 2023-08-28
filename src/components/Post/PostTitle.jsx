@@ -5,7 +5,7 @@ import { Box, Heading } from '@chakra-ui/react';
 
 export default function PostTitle({ post }) {
   return (
-    <Box textAlign="center" padding={{ base: '36px 0', xl: '68px 0' }}>
+    <Box textAlign="center" padding={{ base: '48px 0', xl: '68px 0' }}>
       <Heading as="h3" fontSize="20px" lineHeight="32px" letterSpacing="-1px">
         {post.frontmatter.category}
       </Heading>
@@ -27,7 +27,7 @@ export default function PostTitle({ post }) {
       >
         {post.frontmatter.createdAt}
       </Heading>
-      <Box width="768px" height="375px" margin="40px auto 0px">
+      <Box width="100%" maxWidth="768px" height="375px" margin="40px auto 0px">
         <Box
           position="relative"
           borderRadius="15px"

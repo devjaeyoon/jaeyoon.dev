@@ -32,6 +32,7 @@ const customHTMLElements = {
     <Text
       fontSize={{ base: '14px', md: '16px', xl: '18px' }}
       color="#202125"
+      mt="20px"
       mb="32px"
       lineHeight={{ base: '24px', md: '28px', xl: '32px' }}
       {...props}
