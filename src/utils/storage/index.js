@@ -22,8 +22,8 @@ export function setCount(val) {
 
 export function getCategory(defaultValue) {
   return (
-    getValueFromSessionStorage(`${SESSION_STORAGE_KEY}/category`) ||
-    defaultValue
+    getValueFromSessionStorage(`${SESSION_STORAGE_KEY}/category`)
+    || defaultValue
   );
 }
 
