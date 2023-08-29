@@ -6,10 +6,20 @@ const PostPageTemplate = path.resolve('./src/templates/PostPage.jsx');
 exports.createPages = async ({ graphql, actions: { createPage } }) => {
   const result = await graphql(`
     query {
-      allPosts: allMdx {
+      about: allMdx(filter: { frontmatter: { category: { eq: "about" } } }) {
         nodes {
           id
-          body
+          frontmatter {
+            category
+          }
+          internal {
+            contentFilePath
+          }
+        }
+      }
+      allPosts: allMdx(filter: { frontmatter: { category: { ne: "about" } } }) {
+        nodes {
+          id
           frontmatter {
             slug
             category
@@ -22,18 +32,18 @@ exports.createPages = async ({ graphql, actions: { createPage } }) => {
     }
   `);
 
-  result.data.allPosts.nodes.forEach((node) => {
-    if (node.frontmatter.category === 'about') {
-      createPage({
-        path: '/about',
-        component: `${AboutPageTemplate}?__contentFilePath=${node.internal.contentFilePath}`,
-        context: {
-          id: node.id,
-          category: node.frontmatter.category,
-        },
-      });
-    }
+  const about = result.data.about.nodes[0];
 
+  createPage({
+    path: '/about',
+    component: `${AboutPageTemplate}?__contentFilePath=${about.internal.contentFilePath}`,
+    context: {
+      id: about.id,
+      category: about.frontmatter.category,
+    },
+  });
+
+  result.data.allPosts.nodes.forEach((node) => {
     const postPath = `/posts/${node.frontmatter.slug}`;
 
     createPage({
