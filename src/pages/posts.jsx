@@ -11,8 +11,16 @@ import { useScrollEvent } from '../hooks/useScrollEvent';
 import Layout from '../components/Layout';
 import { Category } from '../components/Category';
 import { Posts } from '../components/Posts';
+import * as Dom from '../utils/dom';
+import * as EventManager from '../utils/event-manager';
 
-export default function PostsPage({ data }) {
+const BASE_LINE = 80;
+
+function getDistance(currentPos) {
+  return Dom.getDocumentHeight() - currentPos;
+}
+
+export default function PostPage({ data }) {
   const [count, countRef, increaseCount] = useRenderedCount();
   const [category, selectCategory] = useCategory();
 
