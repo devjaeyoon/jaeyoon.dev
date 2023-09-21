@@ -3,14 +3,7 @@ import { graphql } from 'gatsby';
 
 import AboutLayout from '../components/About/AboutLayout';
 import AboutContent from '../components/About/AboutContent';
-
-export default function AboutPageTemplate({ data, children }) {
-  return (
-    <AboutLayout>
-      <AboutContent content={children} />
-    </AboutLayout>
-  );
-}
+import { SEO } from '../components/SEO';
 
 export const query = graphql`
   query PostPage($id: String) {
@@ -26,3 +19,13 @@ export const query = graphql`
     }
   }
 `;
+
+export default function AboutPageTemplate({ data, children }) {
+  return (
+    <AboutLayout>
+      <AboutContent content={children} />
+    </AboutLayout>
+  );
+}
+
+export const Head = () => <SEO title="About" />;

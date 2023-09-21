@@ -13,12 +13,47 @@ import { Category } from '../components/Category';
 import { Posts } from '../components/Posts';
 import * as Dom from '../utils/dom';
 import * as EventManager from '../utils/event-manager';
+import { SEO } from '../components/SEO';
 
 const BASE_LINE = 80;
 
 function getDistance(currentPos) {
   return Dom.getDocumentHeight() - currentPos;
 }
+
+export const query = graphql`
+  query {
+    site {
+      siteMetadata {
+        configs {
+          countOfInitialPost
+        }
+      }
+    }
+    allMdx(
+      sort: { frontmatter: { createdAt: DESC } }
+      filter: { frontmatter: { category: { ne: "about" } } }
+    ) {
+      edges {
+        node {
+          frontmatter {
+            thumbnail {
+              childImageSharp {
+                gatsbyImageData
+              }
+            }
+            slug
+            category
+            description
+            title
+            updatedAt
+            createdAt
+          }
+        }
+      }
+    }
+  }
+`;
 
 export default function PostPage({ data }) {
   const [count, countRef, increaseCount] = useRenderedCount();
@@ -64,36 +99,4 @@ export default function PostPage({ data }) {
   );
 }
 
-export const query = graphql`
-  query {
-    site {
-      siteMetadata {
-        configs {
-          countOfInitialPost
-        }
-      }
-    }
-    allMdx(
-      sort: { frontmatter: { createdAt: DESC } }
-      filter: { frontmatter: { category: { ne: "about" } } }
-    ) {
-      edges {
-        node {
-          frontmatter {
-            thumbnail {
-              childImageSharp {
-                gatsbyImageData
-              }
-            }
-            slug
-            category
-            description
-            title
-            updatedAt
-            createdAt
-          }
-        }
-      }
-    }
-  }
-`;
+export const Head = () => <SEO title="Posts" />;

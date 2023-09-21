@@ -4,19 +4,7 @@ import { graphql } from 'gatsby';
 import Layout from '../components/Layout';
 import SlidePostSection from '../components/SlidePost/Section';
 import RecentPostSection from '../components/RecentPost/Section';
-
-export default function IndexPage({ data }) {
-  const recommendedPosts = data.recommendedPosts.nodes;
-  const developmentPosts = data.developmentPosts.nodes;
-
-  return (
-    <Layout>
-      <SlidePostSection name="추천 게시물" posts={recommendedPosts} />
-      <SlidePostSection name="개발 게시물" posts={developmentPosts} />
-      <RecentPostSection posts={data.allMdx.nodes} />
-    </Layout>
-  );
-}
+import { SEO } from '../components/SEO';
 
 export const query = graphql`
   fragment MdxContent on Mdx {
@@ -72,3 +60,18 @@ export const query = graphql`
     }
   }
 `;
+
+export default function IndexPage({ data }) {
+  const recommendedPosts = data.recommendedPosts.nodes;
+  const developmentPosts = data.developmentPosts.nodes;
+
+  return (
+    <Layout>
+      <SlidePostSection name="추천 게시물" posts={recommendedPosts} />
+      <SlidePostSection name="개발 게시물" posts={developmentPosts} />
+      <RecentPostSection posts={data.allMdx.nodes} />
+    </Layout>
+  );
+}
+
+export const Head = () => <SEO title="Home" />;

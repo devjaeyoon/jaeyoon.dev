@@ -6,6 +6,7 @@ import { Box } from '@chakra-ui/react';
 import PostLayout from '../components/Post/PostLayout';
 import PostTitle from '../components/Post/PostTitle';
 import PostContent from '../components/Post/PostContent';
+import { SEO } from '../components/SEO';
 
 export const query = graphql`
   query PostPage($id: String) {
@@ -35,3 +36,10 @@ export default function PostPageTemplate({ data, children }) {
     </PostLayout>
   );
 }
+
+export const Head = ({ data }) => (
+  <SEO
+    title={data.post.frontmatter.title}
+    description={data.post.frontmatter.description}
+  />
+);
