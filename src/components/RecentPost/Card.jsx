@@ -68,7 +68,7 @@ export function RecentPostCard({ node }) {
             fontWeight="500"
             fontFamily="Pretendard"
             lineHeight="16px"
-            color="#c8c8c8"
+            color="#595959"
             whiteSpace="nowrap"
             textOverflow="ellipsis"
           >
