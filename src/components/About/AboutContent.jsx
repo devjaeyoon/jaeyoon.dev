@@ -4,7 +4,7 @@ import { Box } from '@chakra-ui/react';
 
 export default function AboutContent({ content }) {
   return (
-    <Box as="section" marginTop="70px">
+    <Box marginTop="70px">
       <Box maxWidth="100%">{content}</Box>
     </Box>
   );

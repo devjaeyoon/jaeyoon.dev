@@ -5,7 +5,11 @@ import { Box, Heading } from '@chakra-ui/react';
 
 export default function PostTitle({ post }) {
   return (
-    <Box textAlign="center" padding={{ base: '48px 0', xl: '68px 0' }}>
+    <Box
+      as="section"
+      textAlign="center"
+      padding={{ base: '48px 0', xl: '68px 0' }}
+    >
       <Heading as="h3" fontSize="20px" lineHeight="32px" letterSpacing="-1px">
         {post.frontmatter.category}
       </Heading>

@@ -129,7 +129,7 @@ const customHTMLElements = {
   ),
 };
 
-export default function PostLayout({ children }) {
+export default function AboutLayout({ children }) {
   return (
     <MDXProvider components={customHTMLElements}>
       <Header />
@@ -141,7 +141,7 @@ export default function PostLayout({ children }) {
         minHeight="50vh"
         wordBreak="keep-all"
       >
-        <Box as="article">{children}</Box>
+        <Box>{children}</Box>
       </Box>
       <Footer />
     </MDXProvider>
