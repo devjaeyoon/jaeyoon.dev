@@ -3,8 +3,7 @@ import { MDXProvider } from '@mdx-js/react';
 
 import { Heading, Text, Box } from '@chakra-ui/react';
 
-import Header from '../Header';
-import Footer from '../Footer';
+import Layout from '../Layout';
 
 const customHTMLElements = {
   h1: (props) => (
@@ -132,18 +131,7 @@ const customHTMLElements = {
 export default function AboutLayout({ children }) {
   return (
     <MDXProvider components={customHTMLElements}>
-      <Header />
-      <Box
-        as="main"
-        width="calc(100vw - 20px)"
-        maxWidth="1024px"
-        margin="0 auto"
-        minHeight="50vh"
-        wordBreak="keep-all"
-      >
-        <Box>{children}</Box>
-      </Box>
-      <Footer />
+      <Layout>{children}</Layout>
     </MDXProvider>
   );
 }

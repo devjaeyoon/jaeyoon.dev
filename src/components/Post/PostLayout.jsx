@@ -8,8 +8,7 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/cjs/styles/prism';
 
 import parseSyntaxHighlighterClassName from '../../utils/code';
-import Header from '../Header';
-import Footer from '../Footer';
+import Layout from '../Layout';
 
 const customHTMLElements = {
   h1: (props) => (
@@ -201,17 +200,7 @@ const customHTMLElements = {
 export default function PostLayout({ children }) {
   return (
     <MDXProvider components={customHTMLElements}>
-      <Header />
-      <Box
-        as="main"
-        width="calc(100vw - 20px)"
-        maxWidth="1024px"
-        margin="0 auto"
-        wordBreak="keep-all"
-      >
-        <Box as="article">{children}</Box>
-      </Box>
-      <Footer />
+      <Layout>{children}</Layout>
     </MDXProvider>
   );
 }

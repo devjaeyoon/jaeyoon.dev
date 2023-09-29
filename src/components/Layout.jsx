@@ -14,6 +14,7 @@ export default function Layout({ children }) {
         width="calc(100vw - 20px)"
         maxWidth="1024px"
         margin="0 auto"
+        wordBreak="keep-all"
       >
         {children}
       </Box>
