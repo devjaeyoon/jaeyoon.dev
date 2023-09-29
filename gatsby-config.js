@@ -10,6 +10,14 @@ module.exports = {
       },
     },
     {
+      resolve: 'gatsby-plugin-gtag',
+      options: {
+        trackingId: metaConfig.trackingId,
+        head: true,
+        anonymize: true,
+      },
+    },
+    {
       resolve: 'gatsby-plugin-mdx',
       options: {
         extensions: ['.md', '.mdx'],
@@ -48,6 +56,7 @@ module.exports = {
     'gatsby-plugin-image',
     'gatsby-plugin-lodash',
     'gatsby-plugin-sharp',
+    'gatsby-plugin-sitemap',
     'gatsby-transformer-sharp',
   ],
 };
