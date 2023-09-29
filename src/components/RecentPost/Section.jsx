@@ -5,12 +5,7 @@ import { RecentPostCard } from './Card';
 
 export default function RecentPostSection({ posts }) {
   return (
-    <Box
-      as="section"
-      width={{ base: 'calc(100% - 20px)', xl: '100%' }}
-      margin={{ base: '0 auto', xl: '0' }}
-      paddingTop="120px"
-    >
+    <Box as="section" paddingTop="120px">
       <Heading as="h3" fontSize={32} fontWeight={800} fontFamily="Pretendard">
         최신 게시글
       </Heading>

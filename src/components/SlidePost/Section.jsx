@@ -33,12 +33,7 @@ export default function SlidePostSection({ name, posts }) {
   }, [intervalCallback]);
 
   return (
-    <Box
-      as="section"
-      width={{ base: 'calc(100% - 20px)', xl: '100%' }}
-      margin={{ base: '0 auto', xl: '0' }}
-      paddingTop="120px"
-    >
+    <Box as="section" paddingTop="120px">
       <Flex justifyContent="space-between">
         <Heading as="h3" fontSize={32} fontWeight={800} fontFamily="Pretendard">
           {name}
