@@ -6,6 +6,7 @@ import { Box } from '@chakra-ui/react';
 import PostLayout from '../components/Post/PostLayout';
 import PostTitle from '../components/Post/PostTitle';
 import PostContent from '../components/Post/PostContent';
+import Giscus from '../components/Giscus';
 import { SEO } from '../components/SEO';
 
 export const query = graphql`
@@ -33,6 +34,7 @@ export default function PostPageTemplate({ data, children }) {
     <PostLayout>
       <PostTitle post={data.post} />
       <PostContent content={children} />
+      <Giscus />
     </PostLayout>
   );
 }
