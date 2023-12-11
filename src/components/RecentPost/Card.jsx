@@ -21,7 +21,7 @@ export function RecentPostCard({ node }) {
         backgroundColor: 'gray.700',
       }}
     >
-      <Link to={node.frontmatter.slug}>
+      <Link to={`/posts/${node.frontmatter.slug}`}>
         <Box width="100%" height="210px">
           <GatsbyImage
             image={node.frontmatter.thumbnail.childImageSharp.gatsbyImageData}
