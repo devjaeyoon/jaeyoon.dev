@@ -34,6 +34,9 @@ const customHTMLElements = {
       mt="20px"
       mb="32px"
       lineHeight={{ base: '24px', md: '28px', xl: '32px' }}
+      _dark={{
+        color: 'white',
+      }}
       {...props}
     />
   ),
