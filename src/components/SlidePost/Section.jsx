@@ -23,8 +23,8 @@ export default function SlidePostSection({ name, posts }) {
   }, [posts.length]);
 
   const movePrevPostIndex = useCallback(() => {
-    setPostIndex((prev) => (prev - (1 % posts.length)) % posts.length);
-  });
+    setPostIndex((prev) => (prev - 1 + posts.length) % posts.length);
+  }, [posts.length]);
 
   useEffect(() => {
     intervalRef.current = setInterval(intervalCallback, TIME_INTERVAL);
