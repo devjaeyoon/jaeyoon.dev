@@ -51,7 +51,7 @@ export const query = graphql`
     }
 
     developmentPosts: allMdx(
-      filter: { frontmatter: { category: { eq: "development" } } }
+      filter: { frontmatter: { development: { eq: true } } }
       sort: { frontmatter: { createdAt: DESC } }
     ) {
       nodes {
