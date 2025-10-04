@@ -1,0 +1,34 @@
+import React from 'react';
+import { graphql, PageProps } from 'gatsby';
+import AboutLayout from '../components/About/AboutLayout';
+import AboutContent from '../components/About/AboutContent';
+import { SEO } from '../components/SEO';
+import { AboutPageProps } from '../types';
+
+export const query = graphql`
+  query AboutPage($id: String) {
+    post: mdx(id: { eq: $id }) {
+      frontmatter {
+        slug
+        title
+        description
+        category
+        createdAt
+        updatedAt
+      }
+    }
+  }
+`;
+
+export default function AboutPageTemplate({
+  data,
+  children,
+}: PageProps<AboutPageProps['data']> & { children: React.ReactNode }) {
+  return (
+    <AboutLayout>
+      <AboutContent content={children} />
+    </AboutLayout>
+  );
+}
+
+export const Head = () => <SEO title="About" />;
