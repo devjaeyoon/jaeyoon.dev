@@ -1,0 +1,317 @@
+---
+slug: blog-making-history-4
+title: 'JavaScript에서 TypeScript로 마이그레이션'
+description: '기존 JavaScript 블로그를 TypeScript로 리팩토링하며 얻은 경험과 인사이트를 공유합니다'
+thumbnail: ./cover.png
+category: 블로그 제작기
+createdAt: '2024.12.19'
+updatedAt: ''
+recommended: true
+development: true
+---
+
+# 지난 이야기
+
+&nbsp;블로그 제작 과정에서 Gatsby를 선택하고, Lighthouse를 활용해 성능을 개선하는 과정을 거쳐왔습니다. 하지만 개발을 진행하면서 한 가지 아쉬운 점이 있었습니다.
+
+```javascript
+// JavaScript로 작성된 기존 코드 예시
+export default function Layout({ children }) {
+  return (
+    <>
+      <Header />
+      <Box
+        as="main"
+        width="calc(100vw - 20px)"
+        maxWidth="1024px"
+        margin="0 auto"
+        wordBreak="keep-all"
+      >
+        {children}
+      </Box>
+      <Footer />
+    </>
+  );
+}
+```
+
+&nbsp;바로 **타입 안정성의 부족**이었습니다. JavaScript의 동적 타이핑 특성상 런타임에 예상치 못한 오류가 발생하거나, IDE의 자동완성 기능이 제한적이었습니다. 특히 Gatsby의 GraphQL 쿼리 결과나 컴포넌트 props에 대한 타입 정보가 없어 개발 과정에서 불편함을 느꼈습니다.
+
+# TypeScript 마이그레이션을 결정한 이유
+
+## 1. 타입 안정성 확보
+
+&nbsp;JavaScript는 동적 타이핑 언어로, 변수의 타입이 런타임에 결정됩니다. 이는 개발의 유연성을 제공하지만, 동시에 예상치 못한 오류의 원인이 되기도 합니다.
+
+```javascript
+// JavaScript - 런타임에 오류 발생 가능
+function getPostTitle(post) {
+  return post.frontmatter.title; // post가 undefined일 수 있음
+}
+```
+
+&nbsp;TypeScript를 도입하면 컴파일 타임에 이러한 오류를 미리 잡아낼 수 있습니다.
+
+```typescript
+// TypeScript - 컴파일 타임에 오류 감지
+interface Post {
+  frontmatter: {
+    title: string;
+    date: string;
+  };
+}
+
+function getPostTitle(post: Post): string {
+  return post.frontmatter.title; // 타입 안정성 보장
+}
+```
+
+## 2. 개발자 경험 향상
+
+&nbsp; TypeScript의 가장 큰 장점 중 하나는 **향상된 IDE 지원**입니다. 자동완성, 리팩토링, 오류 감지 등의 기능이 JavaScript 대비 훨씬 강력해집니다.
+&nbsp;특히 Gatsby의 GraphQL 쿼리 결과에 대한 타입 정보를 제공받을 수 있어, 데이터 구조를 명확히 파악하고 안전하게 사용할 수 있습니다.
+
+## 3. 코드 품질 향상
+
+&nbsp;TypeScript는 코드의 의도를 명확히 표현할 수 있게 해줍니다. 함수의 매개변수와 반환값, 객체의 구조 등을 타입으로 정의함으로써 코드의 가독성과 유지보수성이 크게 향상됩니다.
+
+# 마이그레이션 전략
+
+## 1. 점진적 마이그레이션 접근
+
+&nbsp;대규모 프로젝트를 한 번에 TypeScript로 변환하는 것은 위험할 수 있습니다. 따라서 **점진적 마이그레이션** 전략을 채택했습니다.
+
+### 단계별 마이그레이션 계획
+
+1. **TypeScript 설정 및 의존성 추가**
+2. **타입 정의 파일 생성**
+3. **Gatsby 설정 파일 변환**
+4. **공통 컴포넌트 변환**
+5. **페이지 및 템플릿 변환**
+6. **유틸리티 함수 변환**
+
+## 2. 타입 정의 우선 설계
+
+&nbsp;마이그레이션을 시작하기 전에 프로젝트의 핵심 타입들을 먼저 정의했습니다.
+
+```typescript
+// src/types/index.ts
+export interface SiteMetadata {
+  title: string;
+  description: string;
+  siteUrl: string;
+  author: string;
+  image: string;
+  trackingId: string;
+  configs: {
+    countOfInitialPost: number;
+  };
+  social: {
+    github: string;
+    email: string;
+  };
+}
+
+export interface MdxNode {
+  id: string;
+  frontmatter: {
+    title: string;
+    date?: string;
+    createdAt?: string;
+    updatedAt?: string;
+    category: string;
+    slug?: string;
+    description?: string;
+    tags?: string[];
+    tag?: string;
+    thumbnail?: {
+      childImageSharp: {
+        gatsbyImageData: any;
+      };
+    };
+    recommended?: boolean;
+    development?: boolean;
+  };
+  // ... 기타 필드들
+}
+```
+
+&nbsp;이러한 타입 정의는 프로젝트 전체에서 일관된 데이터 구조를 보장하고, IDE의 자동완성 기능을 최대한 활용할 수 있게 해줍니다.
+
+# 마이그레이션 과정에서의 도전과 해결
+
+## 1. Gatsby GraphQL 타입 문제
+
+&nbsp;Gatsby의 GraphQL 쿼리 결과에 대한 타입 정의가 가장 큰 도전이었습니다. Gatsby는 자동으로 GraphQL 스키마를 생성하지만, 이를 TypeScript에서 활용하기 위해서는 추가적인 작업이 필요했습니다.
+
+### 해결 방법
+
+```typescript
+// 페이지 컴포넌트에서 타입 정의
+interface IndexPageData {
+  allMdx: {
+    nodes: MdxNode[];
+  };
+  recommendedPosts: {
+    nodes: MdxNode[];
+  };
+  developmentPosts: {
+    nodes: MdxNode[];
+  };
+}
+
+export default function IndexPage({ data }: PageProps<IndexPageData>) {
+  // 타입 안전한 데이터 사용
+  const posts = data.allMdx.nodes;
+  return <Layout>{/* 컴포넌트 렌더링 */}</Layout>;
+}
+```
+
+## 2. 외부 라이브러리 타입 정의
+
+&nbsp;일부 외부 라이브러리들은 TypeScript 타입 정의가 제공되지 않았습니다. 특히 `smooth-scroll`과 `smoothscroll-polyfill` 같은 라이브러리들이 그 예시입니다.
+
+### 해결 방법
+
+```typescript
+// src/types/modules.d.ts
+declare module 'smooth-scroll/dist/smooth-scroll.min' {
+  interface SmoothScrollOptions {
+    speed?: number;
+    speedAsDuration?: boolean;
+    easing?: string;
+    offset?: number;
+    header?: string;
+    topOnEmptyHash?: boolean;
+    updateURL?: boolean;
+    popstate?: boolean;
+  }
+
+  export default class SmoothScroll {
+    constructor(selector: string, options?: SmoothScrollOptions);
+    animateScroll(anchor: number | Element, toggle?: Element, options?: SmoothScrollOptions): void;
+    destroy(): void;
+  }
+}
+```
+
+## 3. 컴포넌트 Props 타입 정의
+
+&nbsp;React 컴포넌트의 props에 대한 타입 정의도 중요한 작업이었습니다. 특히 재사용 가능한 컴포넌트들의 props를 명확히 정의해야 했습니다.
+
+```typescript
+// 컴포넌트 Props 타입 정의
+interface PostTitleProps {
+  post: MdxNode;
+}
+
+interface PostContentProps {
+  content: React.ReactNode;
+}
+
+interface LayoutProps {
+  children: React.ReactNode;
+  location?: Location;
+}
+```
+
+# 마이그레이션 결과
+
+## 1. 타입 안정성 확보
+
+&nbsp;마이그레이션 완료 후, 컴파일 타임에 많은 오류를 미리 잡아낼 수 있게 되었습니다. 특히 GraphQL 쿼리 결과의 필드 접근이나 컴포넌트 props 전달 시 발생할 수 있는 오류들을 사전에 방지할 수 있었습니다.
+
+## 2. 개발 생산성 향상
+
+&nbsp;IDE의 자동완성 기능이 크게 향상되어 개발 속도가 빨라졌습니다. 또한 리팩토링 시 관련된 모든 파일을 자동으로 찾아주는 기능도 매우 유용했습니다.
+
+## 3. 코드 품질 향상
+
+&nbsp;타입 정의를 통해 코드의 의도가 명확해지고, 팀 개발 시 코드 리뷰 과정에서도 더 나은 피드백을 받을 수 있게 되었습니다.
+
+# 마이그레이션 과정에서 배운 점
+
+## 1. 점진적 접근의 중요성
+
+&nbsp;대규모 프로젝트의 마이그레이션은 한 번에 모든 것을 바꾸려 하지 말고, 단계별로 진행하는 것이 중요합니다. 이를 통해 각 단계에서 발생할 수 있는 문제를 빠르게 파악하고 해결할 수 있었습니다.
+
+## 2. 타입 정의의 전략적 설계
+
+&nbsp;프로젝트 초기에 핵심 타입들을 잘 정의하는 것이 중요합니다. 이는 마이그레이션 과정에서 일관성을 유지하고, 향후 유지보수에도 큰 도움이 됩니다.
+
+## 3. 외부 라이브러리 대응
+
+&nbsp;TypeScript 생태계가 성숙해졌다고 해도, 모든 라이브러리가 완벽한 타입 정의를 제공하지는 않습니다. 이에 대한 대응 방안을 미리 준비하는 것이 중요합니다.
+
+# 성능 및 빌드 최적화
+
+## 1. TypeScript 컴파일 최적화
+
+&nbsp;TypeScript 설정을 통해 컴파일 성능을 최적화했습니다.
+
+```json
+// tsconfig.json
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "lib": ["dom", "dom.iterable", "es6"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "module": "esnext",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "react-jsx"
+  }
+}
+```
+
+## 2. ESLint TypeScript 통합
+
+&nbsp;TypeScript와 ESLint를 통합하여 코드 품질을 더욱 향상시켰습니다.
+
+```javascript
+// .eslintrc.js
+module.exports = {
+  extends: [
+    'eslint:recommended',
+    '@typescript-eslint/recommended',
+    'plugin:react/recommended',
+    'plugin:react-hooks/recommended',
+    'plugin:jsx-a11y/recommended',
+    'airbnb',
+  ],
+  parser: '@typescript-eslint/parser',
+  plugins: ['react', 'react-hooks', '@typescript-eslint', 'jsx-a11y'],
+  // ... 기타 설정
+};
+```
+
+# 마이그레이션 후 개선사항
+
+## 1. 개발자 경험 향상
+
+&nbsp;TypeScript 도입으로 인한 가장 큰 변화는 **개발자 경험의 향상**이었습니다. IDE의 자동완성, 오류 감지, 리팩토링 기능이 JavaScript 대비 훨씬 강력해졌습니다.
+
+## 2. 코드 안정성 확보
+
+&nbsp;런타임 오류의 대부분을 컴파일 타임에 잡아낼 수 있게 되어, 프로덕션 환경에서의 오류 발생률이 크게 줄어들었습니다.
+
+## 3. 유지보수성 향상
+
+&nbsp;타입 정의를 통해 코드의 의도가 명확해지고, 새로운 기능 추가나 기존 코드 수정 시 더 안전하고 효율적으로 작업할 수 있게 되었습니다.
+
+# 마치며
+
+&nbsp;JavaScript에서 TypeScript로의 마이그레이션은 단순한 기술적 변화를 넘어서, **코드 품질과 개발자 경험을 크게 향상시키는 전략적 결정**이었습니다. 
+
+&nbsp;특히 Gatsby와 같은 복잡한 프레임워크를 사용하는 프로젝트에서는 TypeScript의 타입 시스템이 제공하는 안정성이 더욱 빛을 발합니다. GraphQL 쿼리 결과의 타입 안정성, 컴포넌트 props의 명확한 정의, 그리고 IDE의 강력한 지원은 개발 과정을 크게 개선시켜주었습니다.
+
+&nbsp;물론 마이그레이션 과정에서 어려움도 있었지만, 그 과정에서 배운 것들과 결과적으로 얻은 이익을 고려하면 충분히 가치 있는 투자였다고 생각합니다. 
+
+&nbsp;앞으로도 TypeScript의 강력한 타입 시스템을 활용하여 더 안정적이고 유지보수하기 쉬운 코드를 작성해 나가고 싶습니다. **지금까지 긴 글 읽어주셔서 감사합니다!**
