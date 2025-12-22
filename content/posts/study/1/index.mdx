@@ -1,0 +1,210 @@
+---
+slug: blog-making-history-5
+title: 'WebView로 앱과 웹을 연결해보며 배운 것들'
+description: 'React Native WebView와 Next.js를 연결하며 앱과 웹이 어떻게 소통하는지 직접 구현해보며 배운 내용을 정리합니다'
+thumbnail: ./cover.png
+category: 공부
+createdAt: '2025.12.22'
+updatedAt: ''
+recommended: true
+development: true
+---
+
+# WebView
+
+&nbsp;여러 IT 기업들의 기술 블로그와 영상, 채용 공고를 보면 WebView라는 키워드를 자연스럽게 접하게 됩니다. 앱 안에서 WebView React와 Next를 사용할 수 있게 되는데 오늘은 이를 공부하며 배운 점과 느낀 점을 기록하려 합니다.
+
+# WebView란 무엇일까?
+
+&nbsp;WebView는 간단히 말하면 **앱 안에 들어 있는 브라우저**입니다.
+React Native, Android, iOS 같은 네이티브 앱 내부에서 웹 페이지를 렌더링할 수 있게 해주는 컴포넌트입니다.
+
+여기서 중요한 점은,
+
+- WebView는 HTML/CSS/JavaScript를 그대로 실행한다
+- 단, **앱 안에서 실행되는 웹**이라는 점
+
+이라는 것입니다.
+
+즉,
+**웹 기술을 그대로 쓰되 실행 환경만 앱일 뿐**이라는 개념에 가깝습니다.
+
+# 왜 굳이 WebView를 사용할까?
+
+&nbsp;처음에는 이 복잡한 구조를 왜 쓰는지 의문이 들었습니다.
+하지만 실제 서비스 구조를 하나씩 살펴보고 기술 블로그를 참고하며 이유가 명확하게 알게 되었습니다.
+
+- 하나의 웹 코드로 iOS / Android 동시 대응
+- 빠른 기능 수정 및 배포
+- 앱 심사 없이 콘텐츠 업데이트 가능
+- 기존 웹 서비스 재활용
+
+결국 **유지보수 비용과 개발 효율** 측면에서 WebView는 굉장히 강력한 선택지였습니다.
+
+# React Native + Next.js 구조로 직접 실습해보기
+
+&nbsp;개념만으로는 와닿지 않아 직접 구현해보기로 했습니다.
+구성은 다음과 같습니다.
+
+- **웹**: Next.js (App Router)
+- **앱**: React Native (Expo)
+- **연결**: react-native-webview
+
+구조를 단순화하면 아래와 같습니다.
+
+```txt
+React Native App
+└── WebView
+└── Next.js Web App
+```
+
+## Web → App 메시지 보내기
+
+Next.js에서 버튼 클릭 시 앱으로 메시지를 보내는 코드는 다음과 같습니다.
+
+```ts
+window.ReactNativeWebView?.postMessage(
+  JSON.stringify({
+    type: 'PING',
+    message: 'Hello from Next.js',
+  })
+);
+````
+
+이렇게
+**웹이 앱에게 직접 이벤트를 전달**할 수 있게 됩니다.
+
+## App → Web 메시지 보내기
+
+반대로 앱에서 웹으로 메시지를 보내기 위해 `injectedJavaScript`를 사용합니다.
+
+```ts
+const injectedJS = `
+  window.dispatchEvent(
+    new MessageEvent("message", {
+      data: "Hello from React Native"
+    })
+  );
+  true;
+`;
+```
+
+이 코드를 통해 앱이 로드되자마자 웹 쪽에서 메시지를 수신할 수 있게 됩니다.
+
+# 라우팅과 뒤로 가기 문제
+
+WebView 환경에서 라우팅 기능을 구현해보기 위해 Next.js에서 `Link`를 사용해 페이지로 이동한 뒤 뒤로 가기를 진행하려 할 때, 뒤로 가기가 되지 않는 문제가 발생했었습니다.
+
+## 웹에서 앱에게 뒤로 가기 요청하기
+
+웹에서는 다음과 같이 메시지를 보냈습니다.
+
+```ts
+window.ReactNativeWebView?.postMessage(
+  JSON.stringify({ type: 'WEB_BACK' })
+);
+```
+
+## 앱에서 WebView 히스토리 판단하기
+
+처음에는 아래와 같은 코드로 처리하려 했습니다.
+
+```ts
+if (webViewRef.current?.canGoBack) {
+  webViewRef.current.goBack();
+}
+```
+
+하지만 실제로는 항상 `false`가 반환되었고
+콘솔에는 다음 로그가 찍혔습니다.
+
+```txt
+LOG No more web history
+```
+
+처음에는 분명 `/detail`로 이동했는데 왜 히스토리가 없다고 판단하는지 이해되지 않았습니다.
+
+# 문제의 원인: canGoBack은 자동으로 갱신되지 않는다
+
+ 원인은 의외로 단순했습니다.
+
+> **WebView의 `canGoBack` 값은 자동으로 최신 상태를 반영하지 않는다**
+
+즉, WebView는
+“지금 히스토리가 있는지”를 **직접 알려주지 않고**,
+`onNavigationStateChange` 이벤트를 통해서만 알 수 있었습니다.
+
+## 해결 방법
+
+```ts
+const canGoBackRef = useRef(false);
+
+<WebView
+  ref={webViewRef}
+  onNavigationStateChange={(navState) => {
+    canGoBackRef.current = navState.canGoBack;
+  }}
+  onMessage={(event) => {
+    const message = JSON.parse(event.nativeEvent.data);
+
+    if (message.type === 'WEB_BACK') {
+      if (canGoBackRef.current) {
+        webViewRef.current?.goBack();
+      } else {
+        console.log('No more web history');
+      }
+    }
+  }}
+/>
+```
+
+이렇게 처리하니,
+
+* WebView 진입
+* (WebView 페이지) Home → Detail 이동
+* 뒤로 가기 클릭
+* 다시 Home으로 정상 복귀
+
+라는 흐름이 완성되었습니다.
+
+# WebView를 공부하며 느낀 점
+
+ 이번 실습을 통해 가장 크게 느낀 점은 다음과 같습니다.
+
+### 1. WebView는 브라우저이지만, 실제 브라우저처럼 동작하지는 않는다
+
+* 히스토리
+* 뒤로 가기
+* 제스처
+
+이 모든 것을 **명시적으로 관리해야** 했습니다.
+
+### 2. 웹과 앱의 경계를 명확히 인식하게 된다
+
+* 웹은 화면과 비즈니스 로직
+* 앱은 네비게이션과 시스템 제어
+
+이 역할 분리가 굉장히 인상 깊었습니다.
+
+### 3. “왜 이렇게 설계했는지”가 보이기 시작했다
+
+토스, 네이버, 카카오 같은 서비스들이
+왜 WebView 기반 구조를 선택했는지
+코드를 직접 작성해보니 자연스럽게 이해할 수 있었습니다.
+
+# 마치며
+
+ WebView는 단순히 “웹을 앱에 띄우는 기술”이 아니라
+**앱과 웹이 서로 협력하는 하나의 아키텍처**라는 생각이 들었습니다.
+
+이번 실습을 통해
+
+* React Native와 Next.js의 역할
+* WebView의 한계와 장점
+* 앱과 웹의 책임 분리
+
+를 직접 체감할 수 있었고,
+이제는 WebView 기반 서비스 구조를 보더라도
+“아, 이래서 이렇게 만들었구나” 하고 이해할 수 있는 계기가 되었습니다.
+
+**지금까지 긴 글 읽어주셔서 감사합니다!**
