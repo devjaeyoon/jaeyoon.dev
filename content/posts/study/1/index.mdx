@@ -10,6 +10,10 @@ recommended: true
 development: true
 ---
 
+# tl;dr
+
+React Native WebView와 Next.js를 직접 연결해보며, WebView가 단순한 “앱 안의 브라우저”가 아니라 앱과 웹이 메시지로 협력하는 구조임을 체감했다. postMessage와 injectedJavaScript를 통해 양방향 통신을 구현했고, 뒤로 가기 문제를 해결하며 WebView의 히스토리 상태는 canGoBack이 아닌 onNavigationStateChange로 직접 관리해야 한다는 점을 배웠다. 이번 실습을 통해 앱은 네비게이션·시스템 제어를, 웹은 화면과 비즈니스 로직을 담당하는 역할 분리가 WebView 아키텍처의 핵심임을 이해하게 되었다.
+
 # WebView
 
 &nbsp;여러 IT 기업들의 기술 블로그와 영상, 채용 공고를 보면 WebView라는 키워드를 자연스럽게 접하게 됩니다. 앱 안에서 WebView React와 Next를 사용할 수 있게 되는데 오늘은 이를 공부하며 배운 점과 느낀 점을 기록하려 합니다.
