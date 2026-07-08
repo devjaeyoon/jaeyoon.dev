@@ -1,0 +1,14 @@
+---
+import RecentPostSection from "@/components/astro/RecentPostSection.astro";
+import SlidePost from "@/components/react/SlidePost";
+import MainLayout from "@/layouts/MainLayout.astro";
+import { getPostCards } from "@/lib/posts";
+
+const allPosts = await getPostCards();
+const developmentPosts = allPosts.filter((post) => post.development);
+---
+
+<MainLayout>
+  <SlidePost client:visible name="개발 게시물" posts={developmentPosts} />
+  <RecentPostSection posts={allPosts} />
+</MainLayout>

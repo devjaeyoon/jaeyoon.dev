@@ -1,0 +1,18 @@
+---
+import { getCollection, render } from "astro:content";
+import { mdxComponents } from "@/components/mdx/MdxComponents";
+import MainLayout from "@/layouts/MainLayout.astro";
+
+const aboutEntries = await getCollection("about");
+const about = aboutEntries[0];
+if (!about) {
+  throw new Error("About page content not found");
+}
+const { Content } = await render(about);
+---
+
+<MainLayout title="About">
+  <article class="prose mx-auto max-w-none py-8">
+    <Content components={mdxComponents} />
+  </article>
+</MainLayout>

@@ -1,0 +1,29 @@
+---
+import ThemeToggler from "@/components/react/ThemeToggler";
+---
+
+<header
+  class="fixed top-0 z-20 flex h-[45px] w-full items-center bg-(--header-bg) lg:h-[60px] dark:bg-gray-800"
+>
+  <div
+    class="mx-auto flex h-full w-[calc(100%-20px)] max-w-[1024px] items-center justify-between xl:w-full"
+  >
+    <a
+      href="/"
+      class="text-2xl font-semibold tracking-[-1px] hover:underline"
+    >
+      Jaeyoon.dev
+    </a>
+    <ul class="flex list-none items-center gap-6 p-0 lg:gap-12">
+      <li>
+        <a href="/about" class="text-base hover:underline">about</a>
+      </li>
+      <li>
+        <a href="/posts" class="text-base hover:underline">posts</a>
+      </li>
+      <li>
+        <ThemeToggler client:load />
+      </li>
+    </ul>
+  </div>
+</header>

@@ -1,0 +1,39 @@
+---
+import { getCollection, render } from "astro:content";
+import PostTitle from "@/components/astro/PostTitle.astro";
+import { mdxComponents } from "@/components/mdx/MdxComponents";
+import Giscus from "@/components/react/Giscus";
+import PostLayout from "@/layouts/PostLayout.astro";
+
+export async function getStaticPaths() {
+  const posts = await getCollection("posts");
+
+  return posts.map((post) => ({
+    params: { slug: post.data.slug },
+    props: { post },
+  }));
+}
+
+const { post } = Astro.props;
+const { Content } = await render(post);
+const thumbnailSrc = post.data.thumbnail?.src;
+---
+
+<PostLayout
+  title={post.data.title}
+  description={post.data.description}
+  image={thumbnailSrc}
+>
+  <article>
+    <PostTitle
+      category={post.data.category}
+      title={post.data.title}
+      createdAt={post.data.createdAt}
+      thumbnail={post.data.thumbnail}
+    />
+    <div class="prose mx-auto max-w-none px-0 pb-16">
+      <Content components={mdxComponents} />
+    </div>
+    <Giscus client:idle />
+  </article>
+</PostLayout>

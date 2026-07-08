@@ -1,0 +1,12 @@
+---
+import PostsList from "@/components/react/PostsList";
+import MainLayout from "@/layouts/MainLayout.astro";
+import { getCategoriesFromPosts, getPostCards } from "@/lib/posts";
+
+const posts = await getPostCards();
+const categories = getCategoriesFromPosts(posts);
+---
+
+<MainLayout title="Posts">
+  <PostsList client:load posts={posts} categories={categories} />
+</MainLayout>

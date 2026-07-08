@@ -1,0 +1,48 @@
+---
+import { Image } from "astro:assets";
+
+import { formatDisplayDate } from "@/lib/dates";
+import type { PostCardData } from "@/lib/posts";
+
+interface Props {
+  post: PostCardData;
+}
+
+const { post } = Astro.props;
+const label = post.category;
+---
+
+<li
+  class="mt-[30px] h-[380px] w-full list-none overflow-hidden rounded-[20px] bg-(--card-bg) text-left shadow-[0_15px_30px_0_rgba(0,0,0,0.05)] isolate md:w-[330px] dark:bg-gray-700"
+>
+  <a href={`/posts/${post.slug}`} class="block h-full">
+    <div class="h-[210px] w-full overflow-hidden">
+      {
+        post.thumbnail ? (
+          <Image
+            src={post.thumbnail}
+            alt=""
+            aria-hidden="true"
+            class="h-full w-full object-cover"
+            loading="lazy"
+          />
+        ) : (
+          <div class="h-full w-full bg-gray-200 dark:bg-gray-600" />
+        )
+      }
+    </div>
+    <div class="h-[170px] w-full px-[26px] pt-[26px] pb-[22px]">
+      <p class="truncate text-[13px] font-semibold leading-4 tracking-[-1px]">
+        {label}
+      </p>
+      <p
+        class="mt-1.5 line-clamp-2 h-14 text-[19px] font-bold leading-7 tracking-[-1px]"
+      >
+        {post.title}
+      </p>
+      <p class="mt-[22px] truncate text-[13px] font-medium leading-4 text-muted">
+        {formatDisplayDate(post.createdAt)}
+      </p>
+    </div>
+  </a>
+</li>

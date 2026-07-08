@@ -1,0 +1,120 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+@variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --breakpoint-sm: 425px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1440px;
+  --breakpoint-2xl: 1920px;
+
+  --color-background: var(--bg-color);
+  --color-foreground: var(--fg-color);
+  --color-muted: #595959;
+  --color-gray-700: #2d3748;
+  --color-gray-800: #1a202c;
+
+  --font-sans: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif;
+}
+
+:root {
+  --bg-color: #ffffff;
+  --fg-color: #202125;
+  --header-bg: #ffffff;
+  --card-bg: #ffffff;
+  --border-color: #e2e8f0;
+}
+
+.dark {
+  --bg-color: #1a202c;
+  --fg-color: #ffffff;
+  --header-bg: #1a202c;
+  --card-bg: #2d3748;
+  --border-color: #4a5568;
+}
+
+@layer base {
+  html {
+    scroll-padding-top: 75px;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply min-h-screen bg-background text-foreground antialiased font-sans;
+    word-break: keep-all;
+  }
+}
+
+.prose {
+  --tw-prose-body: var(--fg-color);
+  --tw-prose-headings: var(--fg-color);
+  --tw-prose-links: #3182ce;
+  --tw-prose-bold: var(--fg-color);
+  --tw-prose-bullets: #9ca3af;
+  --tw-prose-hr: var(--border-color);
+  --tw-prose-code: var(--fg-color);
+  --tw-prose-pre-bg: #1e1e1e;
+  --tw-prose-pre-code: #e5e7eb;
+}
+
+.dark .prose {
+  --tw-prose-links: #63b3ed;
+}
+
+.prose h1 {
+  @apply mt-10 mb-8 text-4xl font-bold;
+}
+
+.prose h2 {
+  @apply mt-10 mb-5 text-3xl font-bold;
+}
+
+.prose h3 {
+  @apply mt-8 mb-4 text-2xl font-bold;
+}
+
+.prose h4 {
+  @apply mt-5 mb-2.5 text-xl font-bold;
+}
+
+.prose p {
+  @apply my-5 text-base leading-7 md:text-lg md:leading-8;
+}
+
+.prose a {
+  @apply font-semibold text-blue-500 underline;
+}
+
+.prose hr {
+  @apply my-0 border-t border-gray-200 dark:border-gray-700;
+}
+
+.prose ul {
+  @apply my-4 list-inside;
+}
+
+.prose ol {
+  @apply my-4 list-inside;
+}
+
+.prose li {
+  @apply my-1 text-base;
+}
+
+.prose li::marker {
+  color: #718096;
+}
+
+.prose pre {
+  @apply my-5 overflow-x-auto rounded-[20px] p-4;
+}
+
+.prose img {
+  @apply mx-auto my-6 rounded-lg;
+}
+
+.prose :not(pre) > code {
+  @apply rounded bg-gray-100 px-1.5 py-0.5 text-sm dark:bg-gray-700;
+}

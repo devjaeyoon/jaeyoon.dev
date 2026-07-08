@@ -1,0 +1,41 @@
+---
+import { Image } from "astro:assets";
+import type { CollectionEntry } from "astro:content";
+import { formatDisplayDate } from "@/lib/dates";
+
+interface Props {
+  category: string;
+  title: string;
+  createdAt: string;
+  thumbnail?: CollectionEntry<"posts">["data"]["thumbnail"];
+}
+
+const { category, title, createdAt, thumbnail } = Astro.props;
+---
+
+<section class="px-0 py-[53px] text-center xl:py-[68px]">
+  <p class="text-xl font-bold leading-8 tracking-[-1px]">{category}</p>
+  <h1
+    class="mt-5 text-4xl font-bold leading-10 tracking-[-1px] xl:mt-[26px] xl:text-[44px] xl:leading-[56px]"
+  >
+    {title}
+  </h1>
+  <time datetime={createdAt} class="block mt-5 text-base font-bold tracking-[-1px] text-[#9e9e9e] xl:mt-[26px]">
+    {formatDisplayDate(createdAt)}
+  </time>
+  {
+    thumbnail && (
+      <div class="mx-auto mt-10 h-[375px] w-full max-w-[768px]">
+        <div class="relative isolate h-full w-full overflow-hidden rounded-[15px]">
+          <Image
+            src={thumbnail}
+            alt={`${title} 게시글 대표 이미지`}
+            class="h-full w-full object-cover"
+            loading="eager"
+            fetchpriority="high"
+          />
+        </div>
+      </div>
+    )
+  }
+</section>
