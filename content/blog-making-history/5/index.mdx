@@ -1,0 +1,194 @@
+---
+slug: blog-making-history-5
+title: 'Gatsby에서 Astro로 마이그레이션하기'
+description: 'Gatsby 기반 블로그를 Astro로 마이그레이션하며 SEO, 성능, 개발 경험 측면에서 비교한 내용을 공유합니다'
+thumbnail: ./cover.png
+category: 블로그 제작기
+createdAt: '2026.07.24'
+updatedAt: ''
+recommended: true
+development: true
+---
+
+# tl;dr
+
+&nbsp;TypeScript 마이그레이션 이후에도 Gatsby의 GraphQL 데이터 레이어, 무거운 React 번들, 느려지는 빌드 시간이 점점 부담으로 느껴져 Astro로 전환했다. Astro는 **필요한 곳에만 JavaScript를 사용하는 Islands Architecture** 기반으로 하므로, 불필요한 JavaScript를 줄여 Core Web Vitals 개선에 유리한 구조를 갖추고 있으며 SEO에도 간접적인 이점을 기대할 수 있고, Content Collections로 글 관리도 단순해졌다. Gatsby가 여전히 강한 React 생태계와 플러그인 편의성은 있지만, **콘텐츠 중심 블로그**라면 Astro가 더 가볍고 예측 가능한 선택이었다.
+
+# 지난 이야기
+
+&nbsp;[블로그 제작기 2편](/posts/blog-making-history-2)에서 SEO와 렌더링 속도를 이유로 Gatsby를 선택했고, Lighthouse로 개선하고, JavaScript에서 TypeScript로 옮기는 과정까지 거쳐왔습니다. Gatsby는 당시 기준으로 정말 잘 맞는 선택이었습니다. React 기반이라 익숙했고, MDX로 글을 쓰기 편했고, sitemap·RSS·robots.txt 같은 SEO 보조 작업도 플러그인으로 금방 붙였으니까요.
+
+&nbsp;그런데 운영을 하면서 **“SSG 블로그인데 왜 이렇게 무겁지?”** 라는 생각이 자주 들기 시작했습니다. 페이지 대부분은 글과 이미지, 링크로 이루어진 정적인 콘텐츠인데, 빌드할 때마다 GraphQL 스키마를 거치고, 배포 결과물에는 React 런타임이 기본으로 따라붙었습니다. TypeScript로 타입 안정성은 채웠지만, **아키텍처 자체의 무게**는 그대로였습니다.
+
+# 왜 다시 옮기기로 했는가
+
+![많은 일들이 있었다.](./1.png)
+
+&nbsp;마이그레이션을 결정할 때 기준은 예전 Gatsby를 고를 때와 비슷했습니다. 다만 우선순위가 조금 바뀌었습니다.
+
+1. **검색 엔진과 사용자 모두에게 빠른 첫 화면**을 유지할 것
+2. **블로그 운영에 필요한 복잡도**만 남길 것
+3. **앞으로도 혼자 유지보수**할 수 있을 것
+
+&nbsp;이 기준으로 Gatsby를 계속 쓸지, Astro로 갈아탈지 비교해 보았습니다.
+
+# SEO 관점: Gatsby도 SSG인데, Astro가 유리한 이유
+
+&nbsp;먼저 오해를 풀어야 할 부분이 있습니다. **Gatsby도 SSG 방식이면 크롤러에게 비어 있는 HTML을 주지 않습니다.** 2편에서 Gatsby를 고른 핵심 이유인 “미리 만들어 둔 HTML”은 여전히 유효합니다. 그렇다면 Astro가 SEO에 더 낫다는 말은 무엇을 뜻할까요?
+
+&nbsp;핵심은 **“인덱싱 가능한 HTML을 주느냐”** 를 넘어서, **“검색 엔진이 평가하는 페이지 경험 신호”** 에 Astro가 더 유리한 구조를 갖고 있다는 점입니다.
+
+## 1. Zero JavaScript by default
+
+&nbsp;Astro의 기본 철학은 간단합니다. **필요한 곳에만 JavaScript를 보냅니다.** Gatsby + React 조합은 SSG로 HTML을 만들더라도, 하이드레이션을 위해 React 런타임과 페이지 번들이 함께 전달되는 경우가 많습니다. 블로그 본문처럼 상호작용이 거의 없는 영역까지 React가 관여하는 셈입니다.
+
+&nbsp;Astro는 `.astro` 파일이 서버(또는 빌드 타임)에서 HTML로 변환되고, **댓글(Giscus), 다크 모드 토글, 슬라이드 같은 부분만 Islands로 분리**해 필요할 때만 클라이언트에서 실행합니다.
+
+```astro
+<!-- 정적 영역: JS 없이 HTML만 전달 -->
+<PostTitle
+  category={post.data.category}
+  title={post.data.title}
+  createdAt={post.data.createdAt}
+/>
+
+<!-- 상호작용이 필요한 영역만 hydrate -->
+<Giscus client:idle />
+```
+
+&nbsp;검색 엔진 입장에서 본문 텍스트는 두 프레임워크 모두 읽을 수 있습니다. 하지만 **LCP, TBT, INP 같은 Core Web Vitals**는 실제 사용자 경험과 순위 신호에 영향을 줍니다. 불필요한 JS가 줄면 첫 페인트와 상호작용 준비 시간이 빨라지고, 이는 SEO에 간접적이지만 분명한 이점입니다.
+
+## 2. Islands Architecture
+
+&nbsp;Astro의 Islands Architecture는 “페이지 전체를 하나의 SPA처럼 굴리지 않는다”는 뜻에 가깝습니다. 제 블로그에서는 다음 정도만 React를 씁니다.
+
+- 메인 페이지 슬라이드 (`client:visible`)
+- 게시물 목록 필터 (`client:load`)
+- 테마 토글 (`client:load`)
+- Giscus 댓글 (`client:idle`)
+
+&nbsp;글 본문, 헤더, 푸터, 메타 태그, OG 이미지 설정처럼 **SEO와 직결되는 영역은 Astro 컴포넌트로 HTML만 출력**합니다. Gatsby에서도 코드 스플리팅은 가능하지만, 프레임워크 기본값이 “React 앱 하나”에 가깝다면 Astro는 “문서 + 필요한 위젯”에 더 가깝습니다. **콘텐츠 사이트의 기본값**으로는 후자가 맞다고 느꼈습니다.
+
+## 3. 메타 태그와 문서 구조의 명시성
+
+&nbsp;Astro에서는 레이아웃에서 SEO 메타를 직접 선언합니다. 추상화가 한 겹 적어, **페이지마다 어떤 title, description, canonical, OG 태그가 나가는지** 코드만 봐도 바로 알 수 있습니다.
+
+```astro
+const pageTitle = title ? `${title} | ${SITE_CONFIG.title}` : SITE_CONFIG.title;
+const canonicalURL = Astro.url.href;
+const ogImage = new URL(image, Astro.site);
+```
+
+```html
+<link rel="canonical" href="{canonicalURL}" />
+<meta name="description" content="{description}" />
+<meta property="og:title" content="{pageTitle}" />
+<meta property="og:image" content="{ogImage.href}" />
+```
+
+&nbsp;Gatsby에서는 `react-helmet`이나 `gatsby-plugin-react-helmet` 같은 도구로 같은 일을 할 수 있습니다. 기능상 차이보다 **“문서 메타가 HTML 템플릿의 일부로 보인다”** 는 점이 Astro 쪽이 더 편했습니다. SEO는 결국 올바른 HTML을 정확히 내 보내는 일인데, Astro는 그 일을 프레임워크 중심에 두고 있습니다.
+
+## 4. 이미지, sitemap, RSS
+
+&nbsp;SEO는 메타 태그만이 아닙니다. `@astrojs/sitemap`, `@astrojs/rss`, `astro:assets`의 이미지 최적화로 Gatsby 플러그인이 하던 일을 다시 구성했습니다. Gatsby의 `gatsby-plugin-image`가 강력했던 것은 사실이지만, **블로그 규모에서는 Astro 통합만으로도 충분**했습니다. 오히려 GraphQL 쿼리 없이 콘텐츠 파일과 설정만으로 sitemap과 RSS를 만들 수 있어 운영 부담이 줄었습니다.
+
+## 5. Lighthouse 점수와 SEO의 관계
+
+&nbsp;[3편](/posts/blog-making-history-3)에서 Lighthouse SEO 100점을 받았던 Gatsby 블로그가 “SEO가 나쁜” 것은 아닙니다. 다시 말해, **Gatsby가 SEO에 취약한 프레임워크는 아닙니다.** 다만 Astro로 옮긴 뒤에는 Performance 쪽 여유가 더 생겼고, JS 실행 시간과 번들 크기를 줄이기 쉬운 구조가 SEO **신호의 기반**을 더 단단하게 만들어 준다고 이해했습니다. Lighthouse 점수 자체가 순위를 보장하지는 않지만, 더 가벼운 페이지는 사용자 이탈을 줄이고, 그건 결국 블로그가 지향하는 방향과 같습니다.
+
+# Gatsby vs Astro: SEO 이외의 비교
+
+&nbsp;SEO만으로 프레임워크를 바꾸기엔 비용이 큽니다. 실제로 체감한 차이를 기준으로 정리해 보았습니다.
+
+## Astro의 장점
+
+### 1. Content Collections로 단순해진 데이터 흐름
+
+&nbsp;Gatsby에서는 MDX frontmatter가 GraphQL `allMdx` 노드로 올라가고, 페이지마다 쿼리를 작성해야 했습니다. Astro는 `src/content.config.ts`에서 Zod 스키마로 필드를 검증하고, `getCollection("posts")`로 바로 가져옵니다.
+
+```typescript
+const posts = defineCollection({
+  loader: glob({ pattern: '**/*.mdx', base: './content' }),
+  schema: ({ image }) =>
+    z.object({
+      slug: z.string(),
+      title: z.string(),
+      description: z.string(),
+      // ...
+    }),
+});
+```
+
+&nbsp;블로그처럼 **글 목록 + 상세 페이지 + RSS** 패턴에서는 GraphQL 레이어가 주는 이점보다 유지보수 비용이 더 컸습니다. frontmatter 오타는 빌드 전에 Zod가 잡아 주고, IDE 자동완성도 자연스럽게 따라옵니다.
+
+### 2. 빌드와 개발 서버의 가벼움
+
+&nbsp;Gatsby는 사이트가 커질수록 GraphQL 데이터 레이어 구축 시간이 체감됩니다. Astro는 Vite 기반이라 dev 서버 시작과 HMR이 빠르고, 블로그 규모의 production build도 더 예측 가능했습니다. 글 하나 수정하고 preview 확인하는 루프가 가벼워지면, 결과적으로 글을 더 자주 다듬게 됩니다.
+
+### 3. React는 필요한 곳에만
+
+&nbsp;Chakra UI 기반 React 컴포넌트를 Tailwind CSS + Astro 컴포넌트로 옮기는 작업은 분명 수고가 들었습니다. 대신 **정적 UI는 HTML/CSS로 끝**내고, Framer Motion이 필요한 슬라이드 같은 곳만 React를 남겼습니다. “내 블로그는 React 앱인가, 문서 사이트인가?”라는 질문에, Astro 이후에는 후자에 더 가깝다고 답할 수 있게 되었습니다.
+
+## Gatsby의 장점 — 아직도 인정하는 부분
+
+&nbsp;Astro로 옮긴 지금도, Gatsby가 약했던 것만 말하기는 어렵습니다.
+
+### 1. React 중심 생태계
+
+&nbsp;Gatsby는 React 컴포넌트 하나로 페이지 전체를 구성하는 모델이 익숙합니다. Chakra UI, Framer Motion, Giscus 같은 React 라이브러리를 붙이기도 쉽고, “전부 React로 생각하는” 팀이나 프로젝트에는 진입 장벽이 낮습니다. Astro는 `.astro` 문법과 Islands, `client:*` 지시어를 이해해야 해서 **처음엔 학습 곡선**이 있습니다.
+
+### 2. 플러그인 생태계
+
+&nbsp;2편에서 썼듯, Gatsby 플러그인은 정말 편했습니다. `gatsby.config.ts`에 이름을 추가하는 수준으로 sitemap, feed, robots, image pipeline을 붙일 수 있었습니다. Astro도 공식 integration이 잘 갖춰져 있지만, **Gatsby만큼 방대한 서드파티 플러그인 마켓**은 아닙니다. 특수한 CMS 연동이나 복잡한 소스 플러그인이 필요하면 Gatsby가 여전히 선택지입니다.
+
+### 3. GraphQL의 일관된 데이터 레이어
+
+&nbsp;블로그에는 과했지만, 여러 소스(Markdown, CMS, JSON, API)를 한 GraphQL 스키마로 엮는 Gatsby의 강점은 분명합니다. 데이터 소스가 많고 관계가 복잡한 사이트라면 GraphQL 추상화가 오히려 도움이 됩니다. **글 폴더 + about + RSS 정도**인 제 블로그에는 그 무게가 맞지 않았을 뿐입니다.
+
+## Astro의 단점 — 미리 알았으면 좋았을 것
+
+### 1. UI 라이브러리 마이그레이션 비용
+
+&nbsp;Chakra UI는 React 전용입니다. Astro로 옮기면서 Tailwind CSS v4로 스타일을 다시 짰고, 레이아웃·타이포그래피·다크 모드를 직접 맞춰야 했습니다. “프레임워크만 갈아끼우면 끝”이 아니라, **디자인 시스템까지 같이 옮기는 작업**이었습니다.
+
+### 2. Islands 경계 설계
+
+&nbsp;`client:load`, `client:visible`, `client:idle` 중 무엇을 쓸지 매번 판단해야 합니다. 잘못 선택하면 불필요하게 일찍 hydrate하거나, 반대로 상호작용이 늦게 살아날 수 있습니다. Gatsby에서는 이런 경계를 신경 쓰지 않아도 React 앱 전체가 한 번에 올라왔습니다. **성능과 편의 사이의 트레이드오프**를 직접 관리해야 합니다.
+
+### 3. Gatsby 특유의 편의 기능 상실
+
+&nbsp;`gatsby-link`의 프리페치, `GatsbyImage`의 자동 placeholder, `createPages` API로 slug를 세밀하게 제어하던 방식 등은 Astro에서 다른 방식으로 다시 구현해야 합니다. 대부분 대체 가능하지만, **익숙한 API를 그대로 가져오지는 못합니다.**
+
+# 마이그레이션에서 실제로 한 일
+
+&nbsp;전체를 한 번에 갈아엎기보다, [콘텐츠와 URL을 유지한 채 골격부터 바꾸는 순서](https://github.com/devjaeyoon/new-blog/commits/main/)로 진행했습니다.
+
+1. Astro 프로젝트 초기화 및 `@astrojs/mdx`, `@astrojs/react`, `@astrojs/sitemap` 설정
+2. `content/` MDX 파일과 frontmatter 구조 유지, Content Collections 스키마 정의
+3. Gatsby `src/pages` → Astro `src/pages`, GraphQL 쿼리 → `getCollection` / `getPostBySlug`
+4. Chakra UI 제거, Tailwind + Astro 컴포넌트로 레이아웃 재구성
+5. Netlify 배포 설정(`netlify.toml`)과 RSS, robots.txt, GA 이전
+
+&nbsp;다행히 MDX frontmatter 형식(`slug`, `title`, `description`, `createdAt` 등)은 거의 그대로 썼기 때문에 **글 내용 자체를 대대적으로 고칠 필요는 없었습니다.** 마이그레이션 비용의 대부분은 프레임워크가 아니라 UI 레이어에 있었습니다.
+
+# 정리: 어떤 블로그에 Astro가 맞는가
+
+&nbsp;제 경험을 일반화하면 이렇습니다.
+
+| 기준        | Gatsby가 유리한 경우            | Astro가 유리한 경우                |
+| ----------- | ------------------------------- | ---------------------------------- |
+| 사이트 성격 | React SPA에 가까운 인터랙션     | 글·문서 중심 콘텐츠                |
+| 데이터 소스 | CMS, API, Markdown 등 다수 소스 | 파일 기반 MDX + 소수 컬렉션        |
+| 팀 역량     | React 풀스택으로 통일           | HTML/CSS 친화, JS는 최소화         |
+| SEO 초점    | SSG만으로도 충분한 경우 많음    | Core Web Vitals까지 챙기고 싶을 때 |
+| 도구 체인   | 플러그인으로 빠르게 조립        | 설정을 얇게 유지하고 싶을 때       |
+
+&nbsp;Gatsby를 선택했던 2023년의 나에게 Astro를 권했을지는 잘 모르겠습니다. 당시에는 React만 확실히 아는 주니어에게 Gatsby 튜토리얼 하나로 블로그를 완성할 수 있다는 점이 가장 컸으니까요. 하지만 **2년 넘게 운영해 보니 “블로그에 React 전체를 실을 이유가 줄었다”** 는 결론에 도달했고, 그때 Astro가 자연스러운 다음 단계였습니다.
+
+# 마치며
+
+&nbsp;Gatsby에서 Astro로 옮긴 것은 유행을 따라간 선택이 아니라, **“내 블로그가 실제로 무엇을 하는 사이트인가”** 를 다시 정의한 작업에 가깝습니다. 검색 엔진이 읽을 수 있는 HTML을 만드는 일은 Gatsby도 Astro도 할 수 있습니다. 차이는 그 HTML 주변에 **얼마나 적은 JavaScript를 실어 보내느냐**, 그리고 **그걸 유지하기 위해 개발자가 얼마나 단순한 구조를 쓰느냐** 에서 드러났습니다.
+
+&nbsp;아직 Astro에 익숙해지는 중이고, Islands 경계나 Tailwind 스타일링은 손볼 곳이 남아 있습니다. 다만 글을 쓰고 배포하는 루프가 가벼워진 것은 분명하고, 블로그 제작기 2편에서 세웠던 “SEO와 렌더링, 내가 감당할 수 있는 복잡도” 기준을 **2026년 버전으로 다시 맞춘 것**이라고 생각합니다.
+
+&nbsp;비슷한 고민을 하고 계신다면, 프레임워크 이름보다 **사이트에 필요한 JavaScript의 양**부터 적어 보시는 걸 추천합니다. 그 목록이 짧다면 Astro가 후보가 될 가능성이 큽니다. **지금까지 긴 글 읽어주셔서 감사합니다!**
