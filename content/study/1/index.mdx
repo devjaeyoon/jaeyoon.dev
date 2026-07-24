@@ -1,5 +1,5 @@
 ---
-slug: blog-making-history-5
+slug: first-meet-webview
 title: 'WebView로 앱과 웹을 연결해보며 배운 것들'
 description: 'React Native WebView와 Next.js를 연결하며 앱과 웹이 어떻게 소통하는지 직접 구현해보며 배운 내용을 정리합니다'
 thumbnail: ./cover.png
@@ -71,9 +71,9 @@ window.ReactNativeWebView?.postMessage(
   JSON.stringify({
     type: 'PING',
     message: 'Hello from Next.js',
-  })
+  }),
 );
-````
+```
 
 이렇게
 **웹이 앱에게 직접 이벤트를 전달**할 수 있게 됩니다.
@@ -104,9 +104,7 @@ WebView 환경에서 라우팅 기능을 구현해보기 위해 Next.js에서 `L
 웹에서는 다음과 같이 메시지를 보냈습니다.
 
 ```ts
-window.ReactNativeWebView?.postMessage(
-  JSON.stringify({ type: 'WEB_BACK' })
-);
+window.ReactNativeWebView?.postMessage(JSON.stringify({ type: 'WEB_BACK' }));
 ```
 
 ## 앱에서 WebView 히스토리 판단하기
@@ -164,10 +162,10 @@ const canGoBackRef = useRef(false);
 
 이렇게 처리하니,
 
-* WebView 진입
-* (WebView 페이지) Home → Detail 이동
-* 뒤로 가기 클릭
-* 다시 Home으로 정상 복귀
+- WebView 진입
+- (WebView 페이지) Home → Detail 이동
+- 뒤로 가기 클릭
+- 다시 Home으로 정상 복귀
 
 라는 흐름이 완성되었습니다.
 
@@ -177,16 +175,16 @@ const canGoBackRef = useRef(false);
 
 ### 1. WebView는 브라우저이지만, 실제 브라우저처럼 동작하지는 않는다
 
-* 히스토리
-* 뒤로 가기
-* 제스처
+- 히스토리
+- 뒤로 가기
+- 제스처
 
 이 모든 것을 **명시적으로 관리해야** 했습니다.
 
 ### 2. 웹과 앱의 경계를 명확히 인식하게 된다
 
-* 웹은 화면과 비즈니스 로직
-* 앱은 네비게이션과 시스템 제어
+- 웹은 화면과 비즈니스 로직
+- 앱은 네비게이션과 시스템 제어
 
 이 역할 분리가 굉장히 인상 깊었습니다.
 
@@ -203,9 +201,9 @@ const canGoBackRef = useRef(false);
 
 이번 실습을 통해
 
-* React Native와 Next.js의 역할
-* WebView의 한계와 장점
-* 앱과 웹의 책임 분리
+- React Native와 Next.js의 역할
+- WebView의 한계와 장점
+- 앱과 웹의 책임 분리
 
 를 직접 체감할 수 있었고,
 이제는 WebView 기반 서비스 구조를 보더라도
