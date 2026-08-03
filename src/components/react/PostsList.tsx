@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import CategoryTabs, { useCategoryFilter } from "@/components/react/CategoryTabs";
 import { CATEGORY_ALL, COUNT_OF_INITIAL_POST } from "@/constants";
-import type { PostCardData } from "@/lib/posts";
+import type { ResponsivePostCardData } from "@/lib/posts";
 
 const SESSION_STORAGE_KEY = "__jaeyoon_blog_count__";
 const SCROLL_BASE_LINE = 80;
@@ -41,7 +41,7 @@ function toFit(
   };
 }
 
-function PostListItem({ post }: { post: PostCardData }) {
+function PostListItem({ post }: { post: ResponsivePostCardData }) {
   const label = post.category;
 
   return (
@@ -51,6 +51,10 @@ function PostListItem({ post }: { post: PostCardData }) {
           {post.thumbnail ? (
             <img
               src={post.thumbnail.src}
+              srcSet={post.thumbnail.srcSet}
+              sizes={post.thumbnail.sizes}
+              width={post.thumbnail.width}
+              height={post.thumbnail.height}
               alt=""
               aria-hidden="true"
               className="h-full w-full object-cover"
@@ -75,7 +79,7 @@ function PostListItem({ post }: { post: PostCardData }) {
 }
 
 interface PostsListProps {
-  posts: PostCardData[];
+  posts: ResponsivePostCardData[];
   categories: string[];
 }
 

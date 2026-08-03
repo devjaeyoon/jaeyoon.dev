@@ -2,6 +2,7 @@
 import { Image } from "astro:assets";
 import type { CollectionEntry } from "astro:content";
 import { formatDisplayDate } from "@/lib/dates";
+import { POST_IMAGE_FORMAT, POST_IMAGE_PRESETS, POST_IMAGE_QUALITY } from "@/lib/images";
 
 interface Props {
   category: string;
@@ -29,6 +30,11 @@ const { category, title, createdAt, thumbnail } = Astro.props;
         <div class="relative isolate h-full w-full overflow-hidden rounded-[15px]">
           <Image
             src={thumbnail}
+            width={POST_IMAGE_PRESETS.cover.width}
+            widths={POST_IMAGE_PRESETS.cover.widths}
+            sizes={POST_IMAGE_PRESETS.cover.sizes}
+            format={POST_IMAGE_FORMAT}
+            quality={POST_IMAGE_QUALITY}
             alt={`${title} 게시글 대표 이미지`}
             class="h-full w-full object-cover"
             loading="eager"

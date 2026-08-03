@@ -1,9 +1,9 @@
 ---
 import PostsList from "@/components/react/PostsList";
 import MainLayout from "@/layouts/MainLayout.astro";
-import { getCategoriesFromPosts, getPostCards } from "@/lib/posts";
+import { getCategoriesFromPosts, getPostCards, optimizePostImages } from "@/lib/posts";
 
-const posts = await getPostCards();
+const posts = await optimizePostImages(await getPostCards(), "card");
 const categories = getCategoriesFromPosts(posts);
 ---
 

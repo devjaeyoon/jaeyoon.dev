@@ -1,6 +1,21 @@
+import { getImage } from "astro:assets";
 import { type CollectionEntry, getCollection } from "astro:content";
 
 import { parseDate } from "@/lib/dates";
+import {
+  POST_IMAGE_FORMAT,
+  POST_IMAGE_PRESETS,
+  POST_IMAGE_QUALITY,
+  type PostImageVariant,
+} from "@/lib/images";
+
+export type ResponsiveImageData = {
+  src: string;
+  srcSet: string;
+  sizes: string;
+  width: number;
+  height: number;
+};
 
 export type PostCardData = {
   slug: string;
@@ -10,6 +25,10 @@ export type PostCardData = {
   createdAt: string;
   thumbnail?: CollectionEntry<"posts">["data"]["thumbnail"];
   development: boolean;
+};
+
+export type ResponsivePostCardData = Omit<PostCardData, "thumbnail"> & {
+  thumbnail?: ResponsiveImageData;
 };
 
 export function toPostCardData(post: CollectionEntry<"posts">): PostCardData {
@@ -36,7 +55,42 @@ export async function getPostCards(): Promise<PostCardData[]> {
     .sort((a, b) => parseDate(b.createdAt).getTime() - parseDate(a.createdAt).getTime());
 }
 
-export function getCategoriesFromPosts(posts: PostCardData[]): string[] {
+export async function optimizePostImages(
+  posts: PostCardData[],
+  variant: PostImageVariant,
+): Promise<ResponsivePostCardData[]> {
+  const preset = POST_IMAGE_PRESETS[variant];
+
+  return Promise.all(
+    posts.map(async (post) => {
+      const { thumbnail, ...postWithoutThumbnail } = post;
+
+      if (!thumbnail) {
+        return postWithoutThumbnail;
+      }
+
+      const image = await getImage({
+        src: thumbnail,
+        format: POST_IMAGE_FORMAT,
+        quality: POST_IMAGE_QUALITY,
+        ...preset,
+      });
+
+      return {
+        ...postWithoutThumbnail,
+        thumbnail: {
+          src: image.src,
+          srcSet: image.srcSet.attribute,
+          sizes: preset.sizes,
+          width: Number(image.attributes.width),
+          height: Number(image.attributes.height),
+        },
+      };
+    }),
+  );
+}
+
+export function getCategoriesFromPosts(posts: Pick<PostCardData, "category">[]): string[] {
   return [...new Set(posts.map((post) => post.category))].sort();
 }
 

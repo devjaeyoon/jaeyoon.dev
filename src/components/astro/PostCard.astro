@@ -2,6 +2,7 @@
 import { Image } from "astro:assets";
 
 import { formatDisplayDate } from "@/lib/dates";
+import { POST_IMAGE_FORMAT, POST_IMAGE_PRESETS, POST_IMAGE_QUALITY } from "@/lib/images";
 import type { PostCardData } from "@/lib/posts";
 
 interface Props {
@@ -21,6 +22,11 @@ const label = post.category;
         post.thumbnail ? (
           <Image
             src={post.thumbnail}
+            width={POST_IMAGE_PRESETS.card.width}
+            widths={POST_IMAGE_PRESETS.card.widths}
+            sizes={POST_IMAGE_PRESETS.card.sizes}
+            format={POST_IMAGE_FORMAT}
+            quality={POST_IMAGE_QUALITY}
             alt=""
             aria-hidden="true"
             class="h-full w-full object-cover"

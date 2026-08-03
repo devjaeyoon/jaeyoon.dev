@@ -1,12 +1,12 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { PostCardData } from "@/lib/posts";
+import type { ResponsivePostCardData } from "@/lib/posts";
 
 const TIME_INTERVAL = 5000;
 
 interface SlidePostProps {
   name: string;
-  posts: PostCardData[];
+  posts: ResponsivePostCardData[];
 }
 
 export default function SlidePost({ name, posts }: SlidePostProps) {
@@ -131,7 +131,7 @@ export default function SlidePost({ name, posts }: SlidePostProps) {
       </div>
 
       <div className="relative mx-auto mt-5 h-[500px] w-full xl:mx-0">
-        <AnimatePresence>
+        <AnimatePresence initial={false}>
           <motion.div
             key={current.slug}
             className="absolute inset-0 h-full w-full"
@@ -147,9 +147,15 @@ export default function SlidePost({ name, posts }: SlidePostProps) {
               {current.thumbnail ? (
                 <img
                   src={current.thumbnail.src}
+                  srcSet={current.thumbnail.srcSet}
+                  sizes={current.thumbnail.sizes}
+                  width={current.thumbnail.width}
+                  height={current.thumbnail.height}
                   alt=""
                   aria-hidden="true"
                   className="h-full w-full object-cover"
+                  loading="eager"
+                  fetchPriority="high"
                 />
               ) : (
                 <div className="h-full w-full bg-gray-300 dark:bg-gray-600" />

@@ -2,10 +2,13 @@
 import RecentPostSection from "@/components/astro/RecentPostSection.astro";
 import SlidePost from "@/components/react/SlidePost";
 import MainLayout from "@/layouts/MainLayout.astro";
-import { getPostCards } from "@/lib/posts";
+import { getPostCards, optimizePostImages } from "@/lib/posts";
 
 const allPosts = await getPostCards();
-const developmentPosts = allPosts.filter((post) => post.development);
+const developmentPosts = await optimizePostImages(
+  allPosts.filter((post) => post.development),
+  "hero",
+);
 ---
 
 <MainLayout>
