@@ -7,6 +7,18 @@
   PNPM_VERSION = "10"
 
 [[redirects]]
+  from = "/posts/retrospect-GoormthonUNIV2-Sptring"
+  to = "https://devjaeyoon.com/posts/retrospect-goormthonuniv-2-spring/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/posts/retrospect-GoormthonUNIV-2-Spring"
+  to = "https://devjaeyoon.com/posts/retrospect-goormthonuniv-2-spring/"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "http://devjaeyoon.netlify.app/*"
   to = "https://devjaeyoon.com/:splat"
   status = 301

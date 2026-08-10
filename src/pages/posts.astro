@@ -7,6 +7,15 @@ const posts = await optimizePostImages(await getPostCards(), "card");
 const categories = getCategoriesFromPosts(posts);
 ---
 
-<MainLayout title="Posts">
-  <PostsList client:load posts={posts} categories={categories} />
+<MainLayout
+  title="전체 게시글"
+  description="소프트웨어 개발과 프로젝트 경험을 기록한 Jaeyoon.dev의 전체 게시글을 모았습니다."
+>
+  <section class="pt-[70px]">
+    <h1 class="text-[32px] font-extrabold">전체 게시글</h1>
+    <p class="mt-3 text-base leading-7 text-[#595959] dark:text-gray-300">
+      소프트웨어 개발과 프로젝트 경험을 기록한 글을 한곳에서 살펴보세요.
+    </p>
+    <PostsList client:load posts={posts} categories={categories} />
+  </section>
 </MainLayout>

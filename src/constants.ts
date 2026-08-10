@@ -5,7 +5,6 @@ export const SITE_CONFIG = {
   author: "devjaeyoon",
 } as const;
 
-export const COUNT_OF_INITIAL_POST = 6;
 export const GA_TRACKING_ID = "G-FKPHP9RYE2";
 
 export const CATEGORY_ALL = "All";

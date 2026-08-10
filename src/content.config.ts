@@ -6,7 +6,12 @@ const posts = defineCollection({
   loader: glob({ pattern: "**/*.mdx", base: "./content" }),
   schema: ({ image }) =>
     z.object({
-      slug: z.string(),
+      slug: z
+        .string()
+        .regex(
+          /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
+          "Slug must use lowercase letters, numbers, and hyphens",
+        ),
       title: z.string(),
       description: z.string(),
       thumbnail: image().optional(),
