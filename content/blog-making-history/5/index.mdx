@@ -16,7 +16,7 @@ development: true
 
 # 지난 이야기
 
-&nbsp;[블로그 제작기 2편](/posts/blog-making-history-2)에서 SEO와 렌더링 속도를 이유로 Gatsby를 선택했고, Lighthouse로 개선하고, JavaScript에서 TypeScript로 옮기는 과정까지 거쳐왔습니다. Gatsby는 당시 기준으로 정말 잘 맞는 선택이었습니다. React 기반이라 익숙했고, MDX로 글을 쓰기 편했고, sitemap·RSS·robots.txt 같은 SEO 보조 작업도 플러그인으로 금방 붙였으니까요.
+&nbsp;[블로그 제작기 2편](/posts/blog-making-history-2/)에서 SEO와 렌더링 속도를 이유로 Gatsby를 선택했고, Lighthouse로 개선하고, JavaScript에서 TypeScript로 옮기는 과정까지 거쳐왔습니다. Gatsby는 당시 기준으로 정말 잘 맞는 선택이었습니다. React 기반이라 익숙했고, MDX로 글을 쓰기 편했고, sitemap·RSS·robots.txt 같은 SEO 보조 작업도 플러그인으로 금방 붙였으니까요.
 
 &nbsp;그런데 운영을 하면서 **“SSG 블로그인데 왜 이렇게 무겁지?”** 라는 생각이 자주 들기 시작했습니다. 페이지 대부분은 글과 이미지, 링크로 이루어진 정적인 콘텐츠인데, 빌드할 때마다 GraphQL 스키마를 거치고, 배포 결과물에는 React 런타임이 기본으로 따라붙었습니다. TypeScript로 타입 안정성은 채웠지만, **아키텍처 자체의 무게**는 그대로였습니다.
 
@@ -94,7 +94,7 @@ const ogImage = new URL(image, Astro.site);
 
 ## 5. Lighthouse 점수와 SEO의 관계
 
-&nbsp;[3편](/posts/blog-making-history-3)에서 Lighthouse SEO 100점을 받았던 Gatsby 블로그가 “SEO가 나쁜” 것은 아닙니다. 다시 말해, **Gatsby가 SEO에 취약한 프레임워크는 아닙니다.** 다만 Astro로 옮긴 뒤에는 Performance 쪽 여유가 더 생겼고, JS 실행 시간과 번들 크기를 줄이기 쉬운 구조가 SEO **신호의 기반**을 더 단단하게 만들어 준다고 이해했습니다. Lighthouse 점수 자체가 순위를 보장하지는 않지만, 더 가벼운 페이지는 사용자 이탈을 줄이고, 그건 결국 블로그가 지향하는 방향과 같습니다.
+&nbsp;[3편](/posts/blog-making-history-3/)에서 Lighthouse SEO 100점을 받았던 Gatsby 블로그가 “SEO가 나쁜” 것은 아닙니다. 다시 말해, **Gatsby가 SEO에 취약한 프레임워크는 아닙니다.** 다만 Astro로 옮긴 뒤에는 Performance 쪽 여유가 더 생겼고, JS 실행 시간과 번들 크기를 줄이기 쉬운 구조가 SEO **신호의 기반**을 더 단단하게 만들어 준다고 이해했습니다. Lighthouse 점수 자체가 순위를 보장하지는 않지만, 더 가벼운 페이지는 사용자 이탈을 줄이고, 그건 결국 블로그가 지향하는 방향과 같습니다.
 
 # Gatsby vs Astro: SEO 이외의 비교
 

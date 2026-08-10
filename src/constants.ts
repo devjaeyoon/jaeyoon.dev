@@ -1,7 +1,7 @@
 export const SITE_CONFIG = {
   title: "Jaeyoon.dev",
   description: "소프트웨어 엔지니어 이재윤 기술 블로그입니다.",
-  domain: "https://devjaeyoon.netlify.app",
+  domain: "https://devjaeyoon.com",
   author: "devjaeyoon",
 } as const;
 

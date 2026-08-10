@@ -5,3 +5,15 @@
 [build.environment]
   NODE_VERSION = "22"
   PNPM_VERSION = "10"
+
+[[redirects]]
+  from = "http://devjaeyoon.netlify.app/*"
+  to = "https://devjaeyoon.com/:splat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://devjaeyoon.netlify.app/*"
+  to = "https://devjaeyoon.com/:splat"
+  status = 301
+  force = true

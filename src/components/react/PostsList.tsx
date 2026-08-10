@@ -46,7 +46,7 @@ function PostListItem({ post }: { post: ResponsivePostCardData }) {
 
   return (
     <li className="mt-[30px] h-[380px] w-full list-none overflow-hidden rounded-[20px] bg-[var(--card-bg)] text-left shadow-[0_15px_30px_0_rgba(0,0,0,0.05)] isolate dark:bg-gray-700">
-      <a href={`/posts/${post.slug}`} className="block h-full">
+      <a href={`/posts/${post.slug}/`} className="block h-full">
         <div className="h-[210px] w-full overflow-hidden">
           {post.thumbnail ? (
             <img

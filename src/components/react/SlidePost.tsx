@@ -141,7 +141,7 @@ export default function SlidePost({ name, posts }: SlidePostProps) {
             transition={{ type: "spring", stiffness: 100, damping: 20 }}
           >
             <a
-              href={`/posts/${current.slug}`}
+              href={`/posts/${current.slug}/`}
               className="relative block h-full w-full overflow-hidden rounded-[20px] isolate"
             >
               {current.thumbnail ? (
