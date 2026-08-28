@@ -1,7 +1,7 @@
 import { getImage } from "astro:assets";
 import { type CollectionEntry, getCollection } from "astro:content";
 
-import { parseDate } from "@/lib/dates";
+import { comparePostDatesDescending } from "@/lib/dates";
 import {
   POST_IMAGE_FORMAT,
   POST_IMAGE_PRESETS,
@@ -52,7 +52,7 @@ export async function getPostCards(): Promise<PostCardData[]> {
 
   return posts
     .map(toPostCardData)
-    .sort((a, b) => parseDate(b.createdAt).getTime() - parseDate(a.createdAt).getTime());
+    .sort((a, b) => comparePostDatesDescending(a.createdAt, b.createdAt));
 }
 
 export async function optimizePostImages(
