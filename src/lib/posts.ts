@@ -93,9 +93,3 @@ export async function optimizePostImages(
 export function getCategoriesFromPosts(posts: Pick<PostCardData, "category">[]): string[] {
   return [...new Set(posts.map((post) => post.category))].sort();
 }
-
-export async function getPostBySlug(slug: string): Promise<CollectionEntry<"posts"> | undefined> {
-  const posts = await getPostEntries();
-
-  return posts.find((post) => post.data.slug === slug);
-}

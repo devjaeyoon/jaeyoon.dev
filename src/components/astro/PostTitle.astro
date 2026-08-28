@@ -1,7 +1,6 @@
 ---
 import { Image } from "astro:assets";
 import type { CollectionEntry } from "astro:content";
-import { formatDisplayDate } from "@/lib/dates";
 import { POST_IMAGE_FORMAT, POST_IMAGE_PRESETS, POST_IMAGE_QUALITY } from "@/lib/images";
 
 interface Props {
@@ -22,7 +21,7 @@ const { category, title, createdAt, thumbnail } = Astro.props;
     {title}
   </h1>
   <time datetime={createdAt} class="block mt-5 text-base font-bold tracking-[-1px] text-[#9e9e9e] xl:mt-[26px]">
-    {formatDisplayDate(createdAt)}
+    {createdAt}
   </time>
   {
     thumbnail && (

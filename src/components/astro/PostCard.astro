@@ -1,7 +1,6 @@
 ---
 import { Image } from "astro:assets";
 
-import { formatDisplayDate } from "@/lib/dates";
 import { POST_IMAGE_FORMAT, POST_IMAGE_PRESETS, POST_IMAGE_QUALITY } from "@/lib/images";
 import type { PostCardData } from "@/lib/posts";
 
@@ -47,7 +46,7 @@ const label = post.category;
         {post.title}
       </p>
       <p class="mt-[22px] truncate text-[13px] font-medium leading-4 text-muted">
-        {formatDisplayDate(post.createdAt)}
+        {post.createdAt}
       </p>
     </div>
   </a>

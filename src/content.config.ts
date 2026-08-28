@@ -17,7 +17,6 @@ const posts = defineCollection({
       thumbnail: image().optional(),
       category: z.string(),
       createdAt: z.string(),
-      updatedAt: z.string().nullable().optional(),
       development: z.boolean().nullable().optional().default(false),
     }),
 });
