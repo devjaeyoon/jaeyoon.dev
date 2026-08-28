@@ -1,5 +1,6 @@
-import { useMemo } from "react";
-import CategoryTabs, { useCategoryFilter } from "@/components/react/CategoryTabs";
+import { useCallback, useMemo, useRef } from "react";
+import CategoryTabs from "@/components/react/CategoryTabs";
+import { useCategorySearchParam } from "@/components/react/useCategorySearchParam";
 import { CATEGORY_ALL } from "@/constants";
 import type { ResponsivePostCardData } from "@/lib/posts";
 
@@ -46,7 +47,16 @@ interface PostsListProps {
 }
 
 export default function PostsList({ posts, categories }: PostsListProps) {
-  const { selectedCategory, selectCategory } = useCategoryFilter();
+  const listRootRef = useRef<HTMLDivElement>(null);
+  const { selectedCategory, setCategorySearchParam } = useCategorySearchParam(categories);
+
+  const handleCategorySelect = useCallback(
+    (category: string) => {
+      setCategorySearchParam(category);
+      listRootRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    },
+    [setCategorySearchParam],
+  );
 
   const filteredPosts = useMemo(
     () =>
@@ -57,11 +67,11 @@ export default function PostsList({ posts, categories }: PostsListProps) {
   );
 
   return (
-    <div className="mt-8">
+    <div ref={listRootRef} className="mt-8">
       <CategoryTabs
         categories={categories}
         selectedCategory={selectedCategory}
-        onSelectCategory={selectCategory}
+        onSelectCategory={handleCategorySelect}
       />
       <ul className="grid list-none grid-cols-1 gap-6 p-0 sm:grid-cols-2 lg:grid-cols-3">
         {filteredPosts.map((post) => (

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { CATEGORY_ALL } from "@/constants";
 import { cn } from "@/lib/cn";
 
@@ -22,11 +22,6 @@ function CategoryTab({
   const tabRef = useRef<HTMLLIElement>(null);
   const isSelected = selectedCategory === title;
 
-  const handleClick = () => {
-    scrollToCenter(tabRef);
-    onClick(title);
-  };
-
   useEffect(() => {
     if (isSelected) {
       scrollToCenter(tabRef);
@@ -37,7 +32,7 @@ function CategoryTab({
     <li ref={tabRef} className="mr-2 list-none">
       <button
         type="button"
-        onClick={handleClick}
+        onClick={() => onClick(title)}
         aria-pressed={isSelected}
         className={cn(
           "rounded-[5px] border px-4 py-2 text-sm",
@@ -77,7 +72,6 @@ export default function CategoryTabs({
   return (
     <ul
       ref={containerRef}
-      id="category"
       className="m-0 flex list-none overflow-x-auto scroll-smooth whitespace-nowrap [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
     >
       <CategoryTab
@@ -97,47 +91,4 @@ export default function CategoryTabs({
       ))}
     </ul>
   );
-}
-
-export function useCategoryFilter() {
-  const [selectedCategory, setSelectedCategory] = useState(CATEGORY_ALL);
-
-  const selectCategory = useCallback((category: string) => {
-    setSelectedCategory(category);
-
-    const categoryEl = document.getElementById("category");
-    if (categoryEl) {
-      const y = categoryEl.getBoundingClientRect().top + window.scrollY - 80;
-      window.scrollTo({ top: y, behavior: "smooth" });
-    }
-
-    const params = new URLSearchParams();
-    if (category !== CATEGORY_ALL) {
-      params.set("category", category);
-    }
-
-    const query = params.toString();
-    window.history.pushState(
-      { category },
-      "",
-      query ? `${window.location.pathname}?${query}` : window.location.pathname,
-    );
-  }, []);
-
-  const syncFromUrl = useCallback(() => {
-    const params = new URLSearchParams(window.location.search);
-    const category = params.get("category") ?? CATEGORY_ALL;
-    setSelectedCategory(category);
-  }, []);
-
-  useEffect(() => {
-    syncFromUrl();
-
-    const onPopState = () => syncFromUrl();
-    window.addEventListener("popstate", onPopState);
-
-    return () => window.removeEventListener("popstate", onPopState);
-  }, [syncFromUrl]);
-
-  return { selectedCategory, selectCategory };
 }
