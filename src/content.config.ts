@@ -5,7 +5,7 @@ import { z } from "astro/zod";
 import { postDateSchema } from "@/lib/dates";
 
 const posts = defineCollection({
-  loader: glob({ pattern: "**/*.mdx", base: "./content" }),
+  loader: glob({ pattern: ["**/*.mdx", "!company/**"], base: "./content" }),
   schema: ({ image }) =>
     z.object({
       slug: z
