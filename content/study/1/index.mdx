@@ -11,7 +11,7 @@ development: true
 
 # tl;dr
 
-React Native WebView와 Next.js를 직접 연결해보며, WebView가 단순한 “앱 안의 브라우저”가 아니라 앱과 웹이 메시지로 협력하는 구조임을 체감했다. postMessage와 injectedJavaScript를 통해 양방향 통신을 구현했고, 뒤로 가기 문제를 해결하며 WebView의 히스토리 상태는 canGoBack이 아닌 onNavigationStateChange로 직접 관리해야 한다는 점을 배웠다. 이번 실습을 통해 앱은 네비게이션·시스템 제어를, 웹은 화면과 비즈니스 로직을 담당하는 역할 분리가 WebView 아키텍처의 핵심임을 이해하게 되었다.
+React Native WebView와 Next.js를 직접 연결해보며 앱과 웹이 메시지를 주고받는 구조를 익혔다. 뒤로 가기 문제를 해결하면서 **`canGoBack`은 탐색 이벤트에서 받고, `goBack()`은 WebView ref로 호출한다**는 차이를 알게 되었다. 앱은 네비게이션과 시스템 제어를, 웹은 화면과 비즈니스 로직을 맡는 역할 분리가 인상 깊었다.
 
 # WebView
 
@@ -39,7 +39,7 @@ React Native, Android, iOS 같은 네이티브 앱 내부에서 웹 페이지를
 
 - 하나의 웹 코드로 iOS / Android 동시 대응
 - 빠른 기능 수정 및 배포
-- 앱 심사 없이 콘텐츠 업데이트 가능
+- 원격 웹 콘텐츠를 앱 바이너리 재배포 없이 업데이트 가능
 - 기존 웹 서비스 재활용
 
 결국 **유지보수 비용과 개발 효율** 측면에서 WebView는 굉장히 강력한 선택지였습니다.
@@ -58,7 +58,7 @@ React Native, Android, iOS 같은 네이티브 앱 내부에서 웹 페이지를
 ```txt
 React Native App
 └── WebView
-└── Next.js Web App
+    └── Next.js Web App
 ```
 
 ## Web → App 메시지 보내기
@@ -74,12 +74,11 @@ window.ReactNativeWebView?.postMessage(
 );
 ```
 
-이렇게
-**웹이 앱에게 직접 이벤트를 전달**할 수 있게 됩니다.
+WebView가 주입하는 `window.ReactNativeWebView`를 통해 메시지를 보내면, 앱에서는 `onMessage`로 받을 수 있습니다. 이렇게 **웹이 앱에게 직접 이벤트를 전달**할 수 있게 됩니다. TypeScript에서는 `window.ReactNativeWebView`의 타입 선언도 추가해주면 됩니다.
 
 ## App → Web 메시지 보내기
 
-반대로 앱에서 웹으로 메시지를 보내기 위해 `injectedJavaScript`를 사용합니다.
+반대로 앱에서 웹으로 메시지를 보내기 위해 다음과 같은 스크립트를 작성했습니다.
 
 ```ts
 const injectedJS = `
@@ -92,7 +91,7 @@ const injectedJS = `
 `;
 ```
 
-이 코드를 통해 앱이 로드되자마자 웹 쪽에서 메시지를 수신할 수 있게 됩니다.
+이 스크립트를 WebView의 [`injectedJavaScript`](https://github.com/react-native-webview/react-native-webview/blob/master/docs/Reference.md#injectedjavascript)에 전달하면 문서가 로드될 때 실행됩니다. 여기서 신경 써야 할 부분은 **웹에서 메시지를 받을 준비가 되었는지**입니다. 리스너가 등록되기 전에 실행되면 메시지를 놓치기 때문에, 웹에서 준비 완료 메시지를 보내고 앱에서 `webViewRef.current?.injectJavaScript(injectedJS)`를 호출하는 방식으로 순서를 맞출 수 있습니다.
 
 # 라우팅과 뒤로 가기 문제
 
@@ -116,8 +115,7 @@ if (webViewRef.current?.canGoBack) {
 }
 ```
 
-하지만 실제로는 항상 `false`가 반환되었고
-콘솔에는 다음 로그가 찍혔습니다.
+하지만 이 조건은 통과하지 못했고, 콘솔에는 다음 로그가 찍혔습니다.
 
 ```txt
 LOG No more web history
@@ -125,19 +123,16 @@ LOG No more web history
 
 처음에는 분명 `/detail`로 이동했는데 왜 히스토리가 없다고 판단하는지 이해되지 않았습니다.
 
-# 문제의 원인: canGoBack은 자동으로 갱신되지 않는다
+# 문제의 원인: canGoBack을 잘못된 곳에서 읽고 있었다
 
- 원인은 의외로 단순했습니다.
+&nbsp;원인은 의외로 단순했습니다. [WebView ref](https://github.com/react-native-webview/react-native-webview/blob/master/index.d.ts)에는 `goBack()` 메서드가 있지만, `canGoBack` 속성은 없었습니다. 없는 속성을 읽었으니 값은 `undefined`였고, 조건문을 통과하지 못했던 것입니다.
 
-> **WebView의 `canGoBack` 값은 자동으로 최신 상태를 반영하지 않는다**
-
-즉, WebView는
-“지금 히스토리가 있는지”를 **직접 알려주지 않고**,
-`onNavigationStateChange` 이벤트를 통해서만 알 수 있었습니다.
+**뒤로 갈 수 있는지는 [`onNavigationStateChange`에서 전달받는 `canGoBack`](https://github.com/react-native-webview/react-native-webview/blob/master/docs/Reference.md#onnavigationstatechange)으로 확인**해야 했습니다. 이 값을 보관해두고, 뒤로 가기 요청이 오면 ref의 `goBack()`을 호출하도록 바꿨습니다.
 
 ## 해결 방법
 
-```ts
+```tsx
+const webViewRef = useRef<WebView>(null);
 const canGoBackRef = useRef(false);
 
 <WebView
@@ -146,9 +141,19 @@ const canGoBackRef = useRef(false);
     canGoBackRef.current = navState.canGoBack;
   }}
   onMessage={(event) => {
-    const message = JSON.parse(event.nativeEvent.data);
+    let message: unknown;
+    try {
+      message = JSON.parse(event.nativeEvent.data);
+    } catch {
+      return;
+    }
 
-    if (message.type === 'WEB_BACK') {
+    if (
+      typeof message === 'object' &&
+      message !== null &&
+      'type' in message &&
+      message.type === 'WEB_BACK'
+    ) {
       if (canGoBackRef.current) {
         webViewRef.current?.goBack();
       } else {
@@ -158,6 +163,8 @@ const canGoBackRef = useRef(false);
   }}
 />
 ```
+
+위 예시는 컴포넌트 내부 코드로, WebView의 `source`와 import 부분은 생략했습니다.
 
 이렇게 처리하니,
 
@@ -178,7 +185,7 @@ const canGoBackRef = useRef(false);
 - 뒤로 가기
 - 제스처
 
-이 모든 것을 **명시적으로 관리해야** 했습니다.
+WebView가 관리하는 히스토리를 **앱의 뒤로 가기 버튼이나 제스처와 연결하는 작업**이 필요했습니다. 특히 SPA의 화면 전환이 탐색 이벤트에 반영되는 방식은 플랫폼과 WebView 버전에 따라 달라, 사용하는 환경에서 확인해야 합니다.
 
 ### 2. 웹과 앱의 경계를 명확히 인식하게 된다
 
@@ -189,9 +196,7 @@ const canGoBackRef = useRef(false);
 
 ### 3. “왜 이렇게 설계했는지”가 보이기 시작했다
 
-토스, 네이버, 카카오 같은 서비스들이
-왜 WebView 기반 구조를 선택했는지
-코드를 직접 작성해보니 자연스럽게 이해할 수 있었습니다.
+기존 웹 화면을 그대로 활용하면서 앱 기능과 연결하는 코드를 직접 작성해보니, **왜 WebView를 선택하는지** 조금 더 와닿았습니다.
 
 # 마치며
 

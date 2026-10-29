@@ -11,11 +11,11 @@ development: true
 
 # tl;dr
 
-&nbsp;기존 Gatsby 기반 JavaScript 블로그에서 타입 안정성과 개발자 경험의 한계를 느껴 TypeScript로 점진적 마이그레이션을 진행했다. 핵심 타입을 먼저 정의하고, GraphQL 쿼리·외부 라이브러리·컴포넌트 props의 타입 문제를 단계적으로 해결했다. 그 결과 컴파일 타임 오류 예방, IDE 자동완성 및 리팩토링 효율 향상, 코드 가독성과 유지보수성 개선이라는 성과를 얻었으며, TypeScript 도입은 코드 품질과 개발 생산성을 동시에 높이는 전략적 선택이었다.
+&nbsp;기존 Gatsby 기반 JavaScript 블로그에서 타입 정보가 없어 느꼈던 불편함을 해결하고자 TypeScript를 점진적으로 도입했다. 핵심 타입부터 정의하고 GraphQL 쿼리·외부 라이브러리·컴포넌트 props로 범위를 넓혀갔다. **데이터 구조를 코드로 확인하고, 잘못된 필드 접근이나 props 전달을 실행 전에 찾을 수 있게 된 것**이 가장 큰 변화였다.
 
 # 지난 이야기
 
-&nbsp;블로그 제작 과정에서 Gatsby를 선택하고, Lighthouse를 활용해 성능을 개선하는 과정을 거쳐왔습니다. 하지만 개발을 진행하면서 한 가지 아쉬운 점이 있었습니다.
+&nbsp;블로그 제작 과정에서 Gatsby를 선택하고, Lighthouse를 활용해 개선 지점을 살펴보았습니다. 하지만 개발을 진행하면서 한 가지 아쉬운 점이 있었습니다.
 
 ```javascript
 // JavaScript로 작성된 기존 코드 예시
@@ -53,7 +53,7 @@ function getPostTitle(post) {
 }
 ```
 
-&nbsp;TypeScript를 도입하면 컴파일 타임에 이러한 오류를 미리 잡아낼 수 있습니다.
+&nbsp;TypeScript에서는 `post`가 없을 가능성을 `Post | undefined`로 표현할 수 있습니다. `strictNullChecks`를 켜두면 **값이 있는지 확인한 뒤 사용하도록** 타입 검사 단계에서 알려줍니다.
 
 ```typescript
 // TypeScript - 컴파일 타임에 오류 감지
@@ -64,10 +64,15 @@ interface Post {
   };
 }
 
-function getPostTitle(post: Post): string {
-  return post.frontmatter.title; // 타입 안정성 보장
+function getPostTitle(post: Post | undefined): string {
+  if (!post) {
+    return '제목 없음';
+  }
+  return post.frontmatter.title;
 }
 ```
+
+&nbsp;위 코드에서 `if` 검사를 없애면 `post`가 `undefined`일 수 있다는 오류가 납니다. 다만 [타입 정보는 JavaScript로 변환할 때 사라지기 때문에](https://www.typescriptlang.org/docs/handbook/2/basic-types.html#erased-types), API 응답처럼 외부에서 들어오는 데이터는 실행 시점에 따로 검증해야 합니다.
 
 ## 2. 개발자 경험 향상
 
@@ -99,6 +104,8 @@ function getPostTitle(post: Post): string {
 
 ```typescript
 // src/types/index.ts
+import type { IGatsbyImageData } from 'gatsby-plugin-image';
+
 export interface SiteMetadata {
   title: string;
   description: string;
@@ -129,7 +136,7 @@ export interface MdxNode {
     tag?: string;
     thumbnail?: {
       childImageSharp: {
-        gatsbyImageData: any;
+        gatsbyImageData: IGatsbyImageData;
       };
     };
     recommended?: boolean;
@@ -139,7 +146,7 @@ export interface MdxNode {
 }
 ```
 
-&nbsp;이러한 타입 정의는 프로젝트 전체에서 일관된 데이터 구조를 보장하고, IDE의 자동완성 기능을 최대한 활용할 수 있게 해줍니다.
+&nbsp;이렇게 핵심 타입을 정리해두면 **여러 컴포넌트에서 같은 데이터 구조를 공유**하고, IDE의 자동완성도 활용할 수 있습니다. 이미지 데이터에는 `gatsby-plugin-image`가 제공하는 `IGatsbyImageData` 타입을 사용할 수 있습니다.
 
 # 마이그레이션 과정에서의 도전과 해결
 
@@ -172,7 +179,7 @@ export default function IndexPage({ data }: PageProps<IndexPageData>) {
 
 ## 2. 외부 라이브러리 타입 정의
 
-&nbsp;일부 외부 라이브러리들은 TypeScript 타입 정의가 제공되지 않았습니다. 특히 `smooth-scroll`과 `smoothscroll-polyfill` 같은 라이브러리들이 그 예시입니다.
+&nbsp;외부 라이브러리를 사용할 때는 **가져오는 경로에 맞는 타입 선언**도 필요했습니다. 패키지에 포함된 타입이나 `@types` 패키지를 확인하고, 사용하는 경로의 선언이 없다면 직접 작성할 수 있습니다. 아래는 `smooth-scroll`의 배포 파일을 가져올 때 사용하는 선언 예시입니다.
 
 ### 해결 방법
 
@@ -222,7 +229,7 @@ interface LayoutProps {
 
 ## 1. 타입 안정성 확보
 
-&nbsp;마이그레이션 완료 후, 컴파일 타임에 많은 오류를 미리 잡아낼 수 있게 되었습니다. 특히 GraphQL 쿼리 결과의 필드 접근이나 컴포넌트 props 전달 시 발생할 수 있는 오류들을 사전에 방지할 수 있었습니다.
+&nbsp;GraphQL 쿼리 결과와 컴포넌트 props에 타입을 적용해, 선언에 없는 필드 접근이나 잘못된 타입의 props 전달을 검사할 수 있게 됐습니다. 수동으로 작성한 GraphQL 타입은 쿼리가 바뀔 때 함께 갱신해야 합니다.
 
 ## 2. 개발 생산성 향상
 
@@ -230,7 +237,7 @@ interface LayoutProps {
 
 ## 3. 코드 품질 향상
 
-&nbsp;타입 정의를 통해 코드의 의도가 명확해지고, 팀 개발 시 코드 리뷰 과정에서도 더 나은 피드백을 받을 수 있게 되었습니다.
+&nbsp;타입 정의를 통해 **컴포넌트가 어떤 값을 받고 반환하는지** 확인하기 쉬워졌습니다. 나중에 코드를 다시 읽을 때도 데이터 구조를 파악하는 데 도움이 되었습니다.
 
 # 마이그레이션 과정에서 배운 점
 
@@ -246,11 +253,11 @@ interface LayoutProps {
 
 &nbsp;TypeScript 생태계가 성숙해졌다고 해도, 모든 라이브러리가 완벽한 타입 정의를 제공하지는 않습니다. 이에 대한 대응 방안을 미리 준비하는 것이 중요합니다.
 
-# 성능 및 빌드 최적화
+# TypeScript와 개발 도구 설정
 
-## 1. TypeScript 컴파일 최적화
+## 1. TypeScript 설정
 
-&nbsp;TypeScript 설정을 통해 컴파일 성능을 최적화했습니다.
+&nbsp;점진적으로 옮길 수 있도록 `allowJs`로 JavaScript 파일을 함께 사용하고, `strict`로 엄격한 타입 검사를 켰습니다. JavaScript 출력은 빌드 도구에 맡기기 위해 `noEmit`을 사용했습니다. `skipLibCheck`는 선언 파일 검사를 생략하는 옵션으로, 검사 시간을 줄일 수 있는 대신 선언 파일 내부의 오류는 확인하지 않게 됩니다.
 
 ```json
 // tsconfig.json
@@ -283,7 +290,7 @@ interface LayoutProps {
 module.exports = {
   extends: [
     'eslint:recommended',
-    '@typescript-eslint/recommended',
+    'plugin:@typescript-eslint/recommended',
     'plugin:react/recommended',
     'plugin:react-hooks/recommended',
     'plugin:jsx-a11y/recommended',
@@ -303,7 +310,7 @@ module.exports = {
 
 ## 2. 코드 안정성 확보
 
-&nbsp;런타임 오류의 대부분을 컴파일 타임에 잡아낼 수 있게 되어, 프로덕션 환경에서의 오류 발생률이 크게 줄어들었습니다.
+&nbsp;잘못된 필드에 접근하거나 props를 다른 타입으로 전달하는 실수를 **코드를 실행하기 전에 확인할 수 있게 되었습니다.** 특히 여러 컴포넌트에서 함께 사용하는 타입을 수정할 때, 영향을 받는 부분을 찾기 편했습니다.
 
 ## 3. 유지보수성 향상
 
